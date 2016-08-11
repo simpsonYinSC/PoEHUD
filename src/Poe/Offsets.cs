@@ -6,8 +6,8 @@ namespace PoeHUD.Poe
 {
     public class Offsets
     {
-        public static Offsets Regular = new Offsets { IgsOffset = 0, IgsDelta = 0, ExeName = "PathOfExile", AreaChangeCount = 0xA48028 };
-        public static Offsets Steam = new Offsets { IgsOffset = 0x1C, IgsDelta = 0x4, ExeName = "PathOfExileSteam", AreaChangeCount = 0xA7E168 };
+        public static Offsets Regular = new Offsets { IgsOffset = 0, IgsDelta = 0, ExeName = "PathOfExile", AreaChangeCount = 0xA4F028 };
+        public static Offsets Steam = new Offsets { IgsOffset = 0x1C, IgsDelta = 0x4, ExeName = "PathOfExileSteam", AreaChangeCount = 0xA8B168 };
         /* offsets from some older steam version:
 		 	Base = 8841968;
 			FileRoot = 8820476;
