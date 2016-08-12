@@ -122,6 +122,8 @@ namespace PoeHUD.Poe
             }, "xx????x????x????xx");
 
         /*
+            Find the pattern by searching for +1 changes every time you change areas
+            Debug what writes to the static entry and change areas.  Should take you here:
             005ADF8E  |. C745 FC FFFFFF>MOV DWORD PTR SS:[EBP-4],-1
             005ADF95  |. 83C4 04        ADD ESP,4
             005ADF98  |. 8B83 60180000  MOV EAX,DWORD PTR DS:[EBX+1860]
