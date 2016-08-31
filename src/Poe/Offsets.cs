@@ -87,11 +87,8 @@ namespace PoeHUD.Poe
 
         private static readonly Pattern basePtrPattern = new Pattern(new byte[]
         {
-            0x50, 0x64, 0x89, 0x25, 0x00, 0x00, 0x00, 0x00,
-            0x81, 0xEC, 0xB0, 0x00, 0x00, 0x00, 0xA1, 0x00,
-            0x00, 0x00, 0x00, 0x85, 0xC0, 0x0F, 0x95, 0xC1,
-            0x84, 0xC9, 0x56, 0x0F, 0x94, 0xC1, 0x84, 0xC9
-        }, "xxxxxxxxxxxxxxx????xxxxxxxxxxxxx");
+            0x84, 0xC9, 0x56, 0x0F, 0x94, 0xC1, 0x84
+        }, "xxxxxxx");
 
         /*
         private static readonly Pattern fileRootPattern = new Pattern(new byte[]
@@ -176,7 +173,7 @@ namespace PoeHUD.Poe
                 }
             }
             int[] array = m.FindPatterns(basePtrPattern, fileRootPattern, areaChangePattern);
-            Base = m.ReadInt(m.AddressOfProcess + array[0] + 0x0F) - m.AddressOfProcess;
+            Base = m.ReadInt(m.AddressOfProcess + array[0] - 0x09) - m.AddressOfProcess;
             System.Console.WriteLine("Base Address: " + (Base + m.AddressOfProcess).ToString("x8"));
             FileRoot = m.ReadInt(m.AddressOfProcess + array[1] + 0x6) - m.AddressOfProcess;
             AreaChangeCount = m.ReadInt(m.AddressOfProcess + array[2] + 0x12) - m.AddressOfProcess;
