@@ -88,7 +88,9 @@ namespace PoeHUD.Poe
         private static readonly Pattern basePtrPattern = new Pattern(new byte[]
         {
             0x84, 0xC9, 0x56, 0x0F, 0x94, 0xC1, 0x84
-        }, "xxxxxxx");
+            0x83, 0xEC, 0x20, 0xC7, 0x45, 0xF0, 0x00, 0x00,
+            0x00, 0x00, 0xA1
+        }, "xxxxxxxxxxxxxxxxxxx");
 
         /*
         private static readonly Pattern fileRootPattern = new Pattern(new byte[]
@@ -97,11 +99,11 @@ namespace PoeHUD.Poe
         }, "xx?xxxxxxxx");
         */
         private static readonly Pattern fileRootPattern = new Pattern(new byte[]
-                {
-                    0xB7, 0x00, 0x00, 0x00, 0x00, 0xB9, 0x00, 0x00,
-                    0x00, 0x00, 0xE8, 0x00, 0x00, 0x00, 0x00, 0xFF,
-                    0x15
-                }, "x????x????x????xx");
+        {
+            0xB7, 0x00, 0x00, 0x00, 0x00, 0xB9, 0x00, 0x00,
+            0x00, 0x00, 0xE8, 0x00, 0x00, 0x00, 0x00, 0xFF,
+            0x15
+        }, "x????x????x????xx");
         /*
         003F1BF4   E8 4A944E00      CALL PathOfEx.008DB043
         003F1BF9   68 0867D400      PUSH PathOfEx.00D46708
@@ -175,9 +177,10 @@ namespace PoeHUD.Poe
                 }
             }
             int[] array = m.FindPatterns(basePtrPattern, fileRootPattern, areaChangePattern);
-            Base = m.ReadInt(m.AddressOfProcess + array[0] - 0x09) - m.AddressOfProcess;
+            Base = m.ReadInt(m.AddressOfProcess + array[0] + 0x13) - m.AddressOfProcess;
             System.Console.WriteLine("Base Address: " + (Base + m.AddressOfProcess).ToString("x8"));
             FileRoot = m.ReadInt(m.AddressOfProcess + array[1] + 0x6) - m.AddressOfProcess;
+            System.Console.WriteLine("FileRoot Pointer: " + (FileRoot + m.AddressOfProcess).ToString("x8"));
             AreaChangeCount = m.ReadInt(m.AddressOfProcess + array[2] + 0x12) - m.AddressOfProcess;
         }
     }
