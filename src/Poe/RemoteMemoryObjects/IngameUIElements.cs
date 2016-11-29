@@ -6,22 +6,22 @@ namespace PoeHUD.Poe.RemoteMemoryObjects
 {
     public class IngameUIElements : RemoteMemoryObject
     {
-        public Element QuestTracker => ReadObjectAt<Element>(0x9F4 + Offsets.GarenaTWDelta);
-        public Element OpenLeftPanel => ReadObjectAt<Element>(0xA1C + Offsets.GarenaTWDelta);
-        public Element OpenRightPanel => ReadObjectAt<Element>(0xA20 + Offsets.GarenaTWDelta);
-        public Element InventoryPanel => ReadObjectAt<Element>(0xA38 + Offsets.GarenaTWDelta);
-        public Element TreePanel => ReadObjectAt<Element>(0xA4C + Offsets.GarenaTWDelta);
-        public Element AtlasPanel => ReadObjectAt<Element>(0xA50 + Offsets.GarenaTWDelta);
-        public Map Map => ReadObjectAt<Map>(0xA68 + Offsets.GarenaTWDelta);
+        public Element QuestTracker => ReadObjectAt<Element>(0x9C0);
+        public Element OpenLeftPanel => ReadObjectAt<Element>(0x9F0);
+        public Element OpenRightPanel => ReadObjectAt<Element>(0x9F4);
+        public Element InventoryPanel => ReadObjectAt<Element>(0xA04);
+        public Element TreePanel => ReadObjectAt<Element>(0xA1C);
+        public Element AtlasPanel => ReadObjectAt<Element>(0xA20);
+        public Map Map => ReadObjectAt<Map>(0xA38);
         public IEnumerable<ItemsOnGroundLabelElement> ItemsOnGroundLabels
         {
             get
             {
-                var itemsOnGroundLabelRoot = ReadObjectAt<ItemsOnGroundLabelElement>(0xA6C + Offsets.GarenaTWDelta);
+                var itemsOnGroundLabelRoot = ReadObjectAt<ItemsOnGroundLabelElement>(0xA3C);
                 return itemsOnGroundLabelRoot.Children;
             }
         }
-        public Element GemLvlUpPanel => ReadObjectAt<Element>(0xB38 + Offsets.GarenaTWDelta);
-        public ItemOnGroundTooltip ItemOnGroundTooltip => ReadObjectAt<ItemOnGroundTooltip>(0xB48 + Offsets.GarenaTWDelta);
+        public Element GemLvlUpPanel => ReadObjectAt<Element>(0xB10);
+        public ItemOnGroundTooltip ItemOnGroundTooltip => ReadObjectAt<ItemOnGroundTooltip>(0xB20);
     }
 }

@@ -6,21 +6,21 @@ namespace PoeHUD.Poe
 {
     public class Element : RemoteMemoryObject
     {
-        public const int OffsetBuffers = 0x76C;
+        public const int OffsetBuffers = 0x6EC;
         // dd id
         // dd (something zero)
         // 16 dup <128-bytes structure>
         // then the rest is
 
         public int vTable => M.ReadInt(Address + 0);
-        public int ChildCount => (M.ReadInt(Address + 0x20 + OffsetBuffers) - M.ReadInt(Address + 0x1C + OffsetBuffers)) / 4;
+        public int ChildCount => (M.ReadInt(Address + 0x2C + OffsetBuffers) - M.ReadInt(Address + 0x28 + OffsetBuffers)) / 4;
         public bool IsVisibleLocal => (M.ReadInt(Address + 0x68 + OffsetBuffers) & 1) == 1;
         public Element Root => ReadObject<Element>(Address + 0x6c + OffsetBuffers);
         public Element Parent => ReadObject<Element>(Address + 0x70 + OffsetBuffers);
         public float X => M.ReadFloat(Address + 0x74 + OffsetBuffers);
         public float Y => M.ReadFloat(Address + 0x78 + OffsetBuffers);
-        public float Width => M.ReadFloat(Address + 0x118 + OffsetBuffers);
-        public float Height => M.ReadFloat(Address + 0x11C + OffsetBuffers);
+        public float Width => M.ReadFloat(Address + 0x158 + OffsetBuffers);
+        public float Height => M.ReadFloat(Address + 0x15C + OffsetBuffers);
 
         public bool IsVisible
         {
@@ -31,7 +31,7 @@ namespace PoeHUD.Poe
 
         protected List<T> GetChildren<T>() where T : Element, new()
         {
-            const int listOffset = 0x1C + OffsetBuffers;
+            const int listOffset = 0x28 + OffsetBuffers;
             var list = new List<T>();
             if (M.ReadInt(Address + listOffset + 4) == 0 || M.ReadInt(Address + listOffset) == 0 ||
                 ChildCount > 1000)
@@ -102,7 +102,7 @@ namespace PoeHUD.Poe
 
         public Element GetChildAtIndex(int index)
         {
-            return index >= ChildCount ? null : GetObject<Element>(M.ReadInt(Address + 0x1C + OffsetBuffers, index * 4));
+            return index >= ChildCount ? null : GetObject<Element>(M.ReadInt(Address + 0x28 + OffsetBuffers, index * 4));
         }
     }
 }
