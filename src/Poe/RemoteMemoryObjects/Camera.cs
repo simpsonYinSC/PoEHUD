@@ -13,7 +13,7 @@ namespace PoeHUD.Poe.RemoteMemoryObjects
         public int Width => M.ReadInt(Address + 0x4);
         public int Height => M.ReadInt(Address + 0x8);
         public float ZFar => M.ReadFloat(Address + 0x1D8);
-        public Vector3 Position => new Vector3(M.ReadFloat(Address + 0x15C), M.ReadFloat(Address + 0x160), M.ReadFloat(Address + 0x164));
+        public Vector3 Position => new Vector3(M.ReadFloat(Address + 0x188), M.ReadFloat(Address + 0x18C), M.ReadFloat(Address + 0x190));
 
         private static Vector2 oldplayerCord;
 
