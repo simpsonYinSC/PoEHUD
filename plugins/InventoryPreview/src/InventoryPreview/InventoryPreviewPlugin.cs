@@ -374,13 +374,13 @@ namespace InventoryPreview
         }
 
         //Images from site:
-        //http://web.poe.garena.com/image/Art/2DItems/Currency/CurrencyRerollRare.png
+        //http://webcdn.pathofexile.com/image/Art/2DItems/Currency/CurrencyRerollRare.png
         private ImageCache DownloadImage(string metadata)
         {
             //Metadata will be always contains (ends with) ".dds" keyword. Check AddItemToCells.
 
             metadata = metadata.Replace(".dds", ".png");
-            var url = "http://web.poe.garena.com/image/" + metadata;
+            var url = "http://webcdn.pathofexile.com/image/" + metadata;
             
             var filePath = LocalPluginDirectory + "/resources/" + metadata;
 
@@ -423,7 +423,8 @@ namespace InventoryPreview
 
             public void OnGetDownloadedStringCompleted(object sender, DownloadDataCompletedEventArgs e)
             {
-                if (e.Error == null)
+                var contentType = ((WebClient)sender).ResponseHeaders[HttpResponseHeader.ContentType];
+                if (e.Error == null && contentType == "image/png")
                 {
                     Bitmap flaskImg;
                     using (var ms = new MemoryStream(e.Result))
@@ -439,6 +440,9 @@ namespace InventoryPreview
                     flaskImg.Save(FilePath, System.Drawing.Imaging.ImageFormat.Png);
 
                     bIsDownloaded = true;//Due to async processing this must be in the last line
+                } else
+                {
+                    LogError("InventoryPreviewPlugin Warning: Invalid Url, ask Admin to fix plugin URL.", 10);
                 }
             }
 
