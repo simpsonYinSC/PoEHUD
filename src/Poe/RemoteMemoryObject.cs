@@ -1,26 +1,29 @@
-using PoeHUD.Framework;
-using PoeHUD.Poe.RemoteMemoryObjects;
+using PoEHUD.Framework;
+using PoEHUD.PoE.RemoteMemoryObjects;
 
-namespace PoeHUD.Poe
+namespace PoEHUD.PoE
 {
     public abstract class RemoteMemoryObject
     {
         public long Address { get; protected set; }
         protected TheGame Game { get; set; }
-        protected Memory M { get; set; }
+        protected Memory Memory { get; set; }
 
-        protected Offsets Offsets => M.offsets;
+        protected Offset Offset => Memory.Offset;
 
         public T ReadObjectAt<T>(int offset) where T : RemoteMemoryObject, new()
         {
             return ReadObject<T>(Address + offset);
         }
 
-
         public T ReadObject<T>(long addressPointer) where T : RemoteMemoryObject, new()
         {
-            var t = new T { M = M, Address = M.ReadLong(addressPointer), Game = Game };
-            return t;
+            return new T
+            {
+                Memory = Memory,
+                Address = Memory.ReadLong(addressPointer),
+                Game = Game
+            };
         }
 
         public T GetObjectAt<T>(int offset) where T : RemoteMemoryObject, new()
@@ -33,17 +36,24 @@ namespace PoeHUD.Poe
             return GetObject<T>(Address + offset);
         }
 
-
         public T GetObject<T>(long address) where T : RemoteMemoryObject, new()
         {
-            var t = new T { M = M, Address = address, Game = Game };
-            return t;
+            return new T
+            {
+                Memory = Memory,
+                Address = address,
+                Game = Game
+            };
         }
 
         public T AsObject<T>() where T : RemoteMemoryObject, new()
         {
-            var t = new T { M = M, Address = Address, Game = Game };
-            return t;
+            return new T
+            {
+                Memory = Memory,
+                Address = Address,
+                Game = Game
+            };
         }
 
         public override bool Equals(object obj)

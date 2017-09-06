@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Media;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
     public static class Sounds
     {
@@ -10,28 +10,30 @@ namespace PoeHUD.Hud
         public static SoundPlayer DangerSound;
         public static SoundPlayer TreasureSound;
         public static SoundPlayer AttentionSound;
-        private static readonly Dictionary<string, SoundPlayer> soundLib = new Dictionary<string, SoundPlayer>();
+        private static readonly Dictionary<string, SoundPlayer> SoundLib = new Dictionary<string, SoundPlayer>();
 
         public static void AddSound(string name)
         {
-            if (!soundLib.ContainsKey(name))
+            if (SoundLib.ContainsKey(name))
             {
-                try
-                {
-                    var soundPlayer = new SoundPlayer($"sounds/{name}");
-                    soundPlayer.Load();
-                    soundLib[name] = soundPlayer;
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error when loading {name}| {ex.Message}:", ex);
-                }
+                return;
+            }
+
+            try
+            {
+                var soundPlayer = new SoundPlayer($"sounds/{name}");
+                soundPlayer.Load();
+                SoundLib[name] = soundPlayer;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error when loading {name}| {ex.Message}:", ex);
             }
         }
 
         public static SoundPlayer GetSound(string name)
         {
-            return soundLib[name];
+            return SoundLib[name];
         }
 
         public static void LoadSounds()

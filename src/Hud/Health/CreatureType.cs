@@ -1,4 +1,4 @@
-namespace PoeHUD.Hud.Health
+namespace PoEHUD.HUD.Health
 {
     public enum CreatureType
     {

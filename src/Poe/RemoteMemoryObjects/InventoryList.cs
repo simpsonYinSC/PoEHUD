@@ -1,7 +1,6 @@
-using PoeHUD.Models.Enums;
-using System.Collections.Generic;
+using PoEHUD.Models.Enums;
 
-namespace PoeHUD.Poe.RemoteMemoryObjects
+namespace PoEHUD.PoE.RemoteMemoryObjects
 {
     public class InventoryList : RemoteMemoryObject
     {
@@ -13,7 +12,10 @@ namespace PoeHUD.Poe.RemoteMemoryObjects
             {
                 var num = (int)inv;
                 if (num < 0 || num >= InventoryCount)
+                {
                     return null;
+                }
+
                 return ReadObjectAt<Inventory>(num * 8);
             }
         }

@@ -1,22 +1,25 @@
-﻿using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.Interfaces;
-using SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.Interfaces;
+using SharpDX;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
+    public enum Direction
+    {
+        Down,
+        Left
+    }
+
     public class PluginPanel : IPanelChild
     {
         private readonly List<IPanelChild> children = new List<IPanelChild>();
         private readonly Direction direction;
 
-        private Func<Vector2> startDrawPointFunc;
-
-        public PluginPanel(Func<Vector2> startDrawPointFunc, Direction direction = Direction.Down)
-            : this(direction)
+        public PluginPanel(Func<Vector2> startDrawPointFunc, Direction direction = Direction.Down) : this(direction)
         {
-            this.startDrawPointFunc = startDrawPointFunc;
+            StartDrawPointFunc = startDrawPointFunc;
         }
 
         public PluginPanel(Direction direction = Direction.Down)
@@ -25,22 +28,73 @@ namespace PoeHUD.Hud
             Margin = new Vector2(0, 0);
         }
 
+        public Func<Vector2> StartDrawPointFunc { get; set; }
+
         public Size2F Size
         {
             get
             {
-                if (children.Count > 0)
+                if (children.Count <= 0)
                 {
-                    switch (direction)
-                    {
-                        case Direction.Down:
-                            return GetVerticalSize();
-
-                        case Direction.Left:
-                            return GetHorizontalSize();
-                    }
+                    return new Size2F(0, 0);
                 }
+
+                switch (direction)
+                {
+                    case Direction.Down:
+                        return GetVerticalSize();
+                    case Direction.Left:
+                        return GetHorizontalSize();
+                }
+
                 return new Size2F(0, 0);
+            }
+        }
+
+        public Vector2 Margin { get; }
+
+        public IEnumerable<IPlugin> GetPlugins()
+        {
+            foreach (IPanelChild panelChild in children)
+            {
+                if (panelChild is IPlugin)
+                {
+                    yield return panelChild as IPlugin;
+                }
+
+                if (!(panelChild is PluginPanel))
+                {
+                    continue;
+                }
+
+                IEnumerable<IPlugin> insideplugins = (panelChild as PluginPanel).GetPlugins();
+                foreach (IPlugin plugin in insideplugins)
+                {
+                    yield return plugin;
+                }
+            }
+        }
+
+        public void AddChildren(IPanelChild child)
+        {
+            children.Add(child);
+            int index = children.Count - 1;
+            switch (direction)
+            {
+                case Direction.Down:
+                    child.StartDrawPointFunc = () => ChoosingStartDrawPoint(
+                        index,
+                        prevChild => prevChild.StartDrawPointFunc().Translate(
+                            prevChild.Margin.X,
+                            prevChild.Size.Height + prevChild.Margin.Y));
+                    break;
+                case Direction.Left:
+                    child.StartDrawPointFunc = () => ChoosingStartDrawPoint(
+                        index,
+                        prevChild => prevChild.StartDrawPointFunc().Translate(
+                            -prevChild.Margin.X - prevChild.Size.Width,
+                            prevChild.Margin.Y));
+                    break;
             }
         }
 
@@ -58,6 +112,7 @@ namespace PoeHUD.Hud
                     maxheight = height;
                 }
             }
+
             return new Size2F(width, maxheight);
         }
 
@@ -74,67 +129,19 @@ namespace PoeHUD.Hud
                     maxWidth = width;
                 }
             }
+
             return new Size2F(maxWidth, height);
-        }
-
-        public Func<Vector2> StartDrawPointFunc
-        {
-            get { return startDrawPointFunc; }
-            set { startDrawPointFunc = value; }
-        }
-
-        public Vector2 Margin { get; }
-
-        public IEnumerable<IPlugin> GetPlugins()
-        {
-            foreach (IPanelChild panelChild in children)
-            {
-                if (panelChild is IPlugin)
-                    yield return panelChild as IPlugin;
-                if (panelChild is PluginPanel)
-                {
-                    IEnumerable<IPlugin> insideplugins = (panelChild as PluginPanel).GetPlugins();
-                    foreach (IPlugin plugin in insideplugins)
-                    {
-                        yield return plugin;
-                    }
-                }
-            }
-        }
-
-        public void AddChildren(IPanelChild child)
-        {
-            children.Add(child);
-            int index = children.Count - 1;
-
-            switch (direction)
-            {
-                case Direction.Down:
-                    child.StartDrawPointFunc = () => ChoosingStartDrawPoint(index, prevChild => prevChild.StartDrawPointFunc()
-                    .Translate(prevChild.Margin.X, prevChild.Size.Height + prevChild.Margin.Y));
-                    break;
-
-                case Direction.Left:
-                    child.StartDrawPointFunc = () => ChoosingStartDrawPoint(index, prevChild => prevChild.StartDrawPointFunc()
-                    .Translate(-prevChild.Margin.X - prevChild.Size.Width, prevChild.Margin.Y));
-                    break;
-            }
         }
 
         private Vector2 ChoosingStartDrawPoint(int index, Func<IPanelChild, Vector2> calcStarPoint)
         {
-            if (index > 0)
+            if (index <= 0)
             {
-                IPanelChild prevChild = children[index - 1];
-                return calcStarPoint(prevChild);
+                return StartDrawPointFunc();
             }
-            return startDrawPointFunc();
-        }
-    }
 
-    public enum Direction
-    {
-        Down,
-        Left
+            IPanelChild prevChild = children[index - 1];
+            return calcStarPoint(prevChild);
+        }
     }
 }

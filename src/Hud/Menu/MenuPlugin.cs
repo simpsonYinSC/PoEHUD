@@ -1,71 +1,36 @@
-using PoeHUD.Controllers;
-using PoeHUD.Framework;
-using PoeHUD.Framework.InputHooks;
-using PoeHUD.Hud.Health;
-using PoeHUD.Hud.Loot;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
-using SharpDX;
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using System.Collections.Generic;
+using PoEHUD.Controllers;
+using PoEHUD.Framework;
+using PoEHUD.Framework.InputHooks;
+using PoEHUD.HUD.Health;
+using PoEHUD.HUD.Loot;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
+using SharpDX;
 
-namespace PoeHUD.Hud.Menu
+namespace PoEHUD.HUD.Menu
 {
     public class MenuPlugin : Plugin<MenuSettings>
     {
+        public static RootButton MenuRootButton;
+        public static Func<MouseEventId, Vector2, bool> ExternalMouseClick = delegate { return false; };
+        public static Action<MouseEventId, Vector2> ExternalMouseEvent = delegate { };
         private readonly SettingsHub settingsHub;
         private readonly Action<MouseInfo> onMouseDown, onMouseUp, onMouseMove;
         private bool holdKey;
-        public static RootButton MenuRootButton;
-        public static event Action<RootButton> eInitMenu = delegate { };//For spawning the menu in external plugins
-        public static Func<MouseEventID, Vector2, bool> ExternalMouseClick = delegate { return false; };
-        public static Action<MouseEventID, Vector2> eMouseEvent = delegate {  };
 
-
-        public MenuPlugin(GameController gameController, Graphics graphics, SettingsHub settingsHub)
-            : base(gameController, graphics, settingsHub.MenuSettings)
+        public MenuPlugin(GameController gameController, Graphics graphics, SettingsHub settingsHub) : base(gameController, graphics, settingsHub.MenuSettings)
         {
             this.settingsHub = settingsHub;
             CreateMenu();
-            MouseHook.MouseDown += onMouseDown = info => info.Handled = OnMouseEvent(MouseEventID.LeftButtonDown, info.Position);
-            MouseHook.MouseUp += onMouseUp = info => info.Handled = OnMouseEvent(MouseEventID.LeftButtonUp, info.Position);
-            MouseHook.MouseMove += onMouseMove = info => info.Handled = OnMouseEvent(MouseEventID.MouseMove, info.Position);
+            MouseHook.OnMouseDown += onMouseDown = info => info.Handled = OnMouseEvent(MouseEventId.LeftButtonDown, info.Position);
+            MouseHook.OnMouseUp += onMouseUp = info => info.Handled = OnMouseEvent(MouseEventId.LeftButtonUp, info.Position);
+            MouseHook.OnMouseMove += onMouseMove = info => info.Handled = OnMouseEvent(MouseEventId.MouseMove, info.Position);
         }
 
-        public override void Dispose()
-        {
-            MouseHook.MouseDown -= onMouseDown;
-            MouseHook.MouseUp -= onMouseUp;
-            MouseHook.MouseMove -= onMouseMove;
-        }
-
-        public override void Render()
-        {
-            try
-            {
-                if (!holdKey && WinApi.IsKeyDown(Keys.F12))
-                {
-                    holdKey = true;
-                    Settings.Enable.Value = !Settings.Enable.Value;
-                    SettingsHub.Save(settingsHub);
-                }
-                else if (holdKey && !WinApi.IsKeyDown(Keys.F12))
-                {
-                    holdKey = false;
-                }
-
-                if (Settings.Enable)
-                {
-                    MenuRootButton.Render(Graphics, Settings);
-                }
-            }
-            catch
-            {
-                // do nothing
-            }
-        }
+        public static event Action<RootButton> ExternalInitMenu = delegate { }; // For spawning the menu in external plugins
 
         public static MenuItem AddChild(MenuItem parent, string text, ToggleNode node, string key = null, Func<MenuItem, bool> hide = null)
         {
@@ -119,15 +84,49 @@ namespace PoeHUD.Hud.Menu
         {
             var item = new ListButton(text, node);
             parent.AddChild(item);
-            //item.StartInitItems();//Can't be in ListButton.ctor coz first of all ListButton menu should be added to childs to initialise it's own bounds.
+            //// item.StartInitItems(); // Can't be in ListButton.ctor coz first of all ListButton menu should be added to childs to initialise it's own bounds.
             node.SettingsListButton = item;
             return item;
+        }
+
+        public override void Dispose()
+        {
+            MouseHook.OnMouseDown -= onMouseDown;
+            MouseHook.OnMouseUp -= onMouseUp;
+            MouseHook.OnMouseMove -= onMouseMove;
+        }
+
+        public override void Render()
+        {
+            try
+            {
+                if (!holdKey && WindowsAPI.IsKeyDown(Keys.F12))
+                {
+                    holdKey = true;
+                    Settings.Enable.Value = !Settings.Enable.Value;
+                    SettingsHub.Save(settingsHub);
+                }
+                else if (holdKey && !WindowsAPI.IsKeyDown(Keys.F12))
+                {
+                    holdKey = false;
+                }
+
+                if (Settings.Enable)
+                {
+                    MenuRootButton.Render(Graphics, Settings);
+                }
+            }
+            catch
+            {
+                // ignore
+            }
         }
 
         private void CreateMenu()
         {
             MenuRootButton = new RootButton(new Vector2(Settings.X, Settings.Y));
-            MenuRootButton.eOnClose += delegate { SettingsHub.Save(settingsHub); };
+            MenuRootButton.ExternalOnClose += delegate { SettingsHub.Save(settingsHub); };
+
             // Health bars
             HealthBarSettings healthBarPlugin = settingsHub.HealthBarSettings;
             MenuItem healthMenu = AddChild(MenuRootButton, "Health bars", healthBarPlugin.Enable);
@@ -197,26 +196,25 @@ namespace PoeHUD.Hud.Menu
             AddChild(uniqueEnemyDPSMenu, "Heal color", healthBarPlugin.UniqueEnemy.FloatingCombatHealColor);
             AddChild(uniqueEnemyDPSMenu, "Number of lines", healthBarPlugin.UniqueEnemy.FloatingCombatStackSize);
 
-            // Xph Display
-            MenuItem xpRateMenu = AddChild(MenuRootButton, "Xph & area", settingsHub.XpRateSettings.Enable, "F10");
-            MenuItem areaName = AddChild(xpRateMenu, "Only area name", settingsHub.XpRateSettings.OnlyAreaName);
-            AddChild(areaName, "Show latency", settingsHub.XpRateSettings.ShowLatency);
-            AddChild(areaName, "Latency color", settingsHub.XpRateSettings.LatencyTextColor);
-            AddChild(xpRateMenu, "Show in town", settingsHub.XpRateSettings.ShowInTown);
-            AddChild(xpRateMenu, "Font size", settingsHub.XpRateSettings.TextSize);
-            AddChild(xpRateMenu, "Fps font color", settingsHub.XpRateSettings.FpsTextColor);
-            AddChild(xpRateMenu, "Xph font color", settingsHub.XpRateSettings.XphTextColor);
-            AddChild(xpRateMenu, "Area font color", settingsHub.PreloadAlertSettings.AreaTextColor);
-            AddChild(xpRateMenu, "Time left color", settingsHub.XpRateSettings.TimeLeftColor);
-            AddChild(xpRateMenu, "Timer font color", settingsHub.XpRateSettings.TimerTextColor);
-            AddChild(xpRateMenu, "Latency font color", settingsHub.XpRateSettings.LatencyTextColor);
-            AddChild(xpRateMenu, "Background color", settingsHub.XpRateSettings.BackgroundColor);
+            // XPH Display
+            MenuItem expRateMenu = AddChild(MenuRootButton, "XPH & area", settingsHub.XPRateSettings.Enable, "F10");
+            MenuItem areaName = AddChild(expRateMenu, "Only area name", settingsHub.XPRateSettings.OnlyAreaName);
+            AddChild(areaName, "Show latency", settingsHub.XPRateSettings.ShowLatency);
+            AddChild(areaName, "Latency color", settingsHub.XPRateSettings.LatencyTextColor);
+            AddChild(expRateMenu, "Show in town", settingsHub.XPRateSettings.ShowInTown);
+            AddChild(expRateMenu, "Font size", settingsHub.XPRateSettings.TextSize);
+            AddChild(expRateMenu, "Fps font color", settingsHub.XPRateSettings.FPSTextColor);
+            AddChild(expRateMenu, "XPH font color", settingsHub.XPRateSettings.XPHTextColor);
+            AddChild(expRateMenu, "Area font color", settingsHub.PreloadAlertSettings.AreaTextColor);
+            AddChild(expRateMenu, "Time left color", settingsHub.XPRateSettings.TimeLeftColor);
+            AddChild(expRateMenu, "Timer font color", settingsHub.XPRateSettings.TimerTextColor);
+            AddChild(expRateMenu, "Latency font color", settingsHub.XPRateSettings.LatencyTextColor);
+            AddChild(expRateMenu, "Background color", settingsHub.XPRateSettings.BackgroundColor);
 
             // Item Alert
             MenuItem itemAlertMenu = AddChild(MenuRootButton, "Item alert", settingsHub.ItemAlertSettings.Enable);
             var itemAlertStaticMenuList = new[] { "Alternative", "Item tooltips", "Play sound", "Show text", "Hide others", "Show border" };
-            MenuItem alternative = AddChild(itemAlertMenu, itemAlertStaticMenuList[0],
-                settingsHub.ItemAlertSettings.Alternative, null, y => itemAlertStaticMenuList.All(x => x != (y as ToggleButton)?.Name));
+            MenuItem alternative = AddChild(itemAlertMenu, itemAlertStaticMenuList[0], settingsHub.ItemAlertSettings.Alternative, null, y => itemAlertStaticMenuList.All(x => x != (y as ToggleButton)?.Name));
             AddChild(alternative, settingsHub.ItemAlertSettings.FilePath);
             AddChild(alternative, "With border", settingsHub.ItemAlertSettings.WithBorder);
             AddChild(alternative, "With sound", settingsHub.ItemAlertSettings.WithSound);
@@ -232,18 +230,18 @@ namespace PoeHUD.Hud.Menu
             AddChild(itemModsMenu, "Tier 3 color", settingsHub.AdvancedTooltipSettings.ItemMods.T3Color);
             AddChild(itemModsMenu, "Suffix color", settingsHub.AdvancedTooltipSettings.ItemMods.SuffixColor);
             AddChild(itemModsMenu, "Prefix color", settingsHub.AdvancedTooltipSettings.ItemMods.PrefixColor);
-            MenuItem weaponDpsMenu = AddChild(tooltipMenu, "Weapon Dps", settingsHub.AdvancedTooltipSettings.WeaponDps.Enable);
-            var damageColors = AddChild(weaponDpsMenu, "Damage colors", settingsHub.AdvancedTooltipSettings.WeaponDps.Enable);
-            AddChild(damageColors, "Cold damage", settingsHub.AdvancedTooltipSettings.WeaponDps.DmgColdColor);
-            AddChild(damageColors, "Fire damage", settingsHub.AdvancedTooltipSettings.WeaponDps.DmgFireColor);
-            AddChild(damageColors, "Lightning damage", settingsHub.AdvancedTooltipSettings.WeaponDps.DmgLightningColor);
-            AddChild(damageColors, "Chaos damage", settingsHub.AdvancedTooltipSettings.WeaponDps.DmgChaosColor);
-            AddChild(damageColors, "Physical damage", settingsHub.AdvancedTooltipSettings.WeaponDps.pDamageColor);
-            AddChild(damageColors, "Elemental damage", settingsHub.AdvancedTooltipSettings.WeaponDps.eDamageColor);
-            AddChild(weaponDpsMenu, "Text color", settingsHub.AdvancedTooltipSettings.WeaponDps.TextColor);
-            AddChild(weaponDpsMenu, "Dps size", settingsHub.AdvancedTooltipSettings.WeaponDps.DpsTextSize);
-            AddChild(weaponDpsMenu, "Dps text size", settingsHub.AdvancedTooltipSettings.WeaponDps.DpsNameTextSize);
-            AddChild(weaponDpsMenu, "Background color", settingsHub.AdvancedTooltipSettings.WeaponDps.BackgroundColor);
+            MenuItem weaponDPSMenu = AddChild(tooltipMenu, "Weapon DPS", settingsHub.AdvancedTooltipSettings.WeaponDPS.Enable);
+            var damageColors = AddChild(weaponDPSMenu, "Damage colors", settingsHub.AdvancedTooltipSettings.WeaponDPS.Enable);
+            AddChild(damageColors, "Cold damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.ColdDamageColor);
+            AddChild(damageColors, "Fire damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.FireDamageColor);
+            AddChild(damageColors, "Lightning damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.LightningDamageColor);
+            AddChild(damageColors, "Chaos damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.ChaosDamageColor);
+            AddChild(damageColors, "Physical damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.PhysicalDamageColor);
+            AddChild(damageColors, "Elemental damage", settingsHub.AdvancedTooltipSettings.WeaponDPS.ElementalDamageColor);
+            AddChild(weaponDPSMenu, "Text color", settingsHub.AdvancedTooltipSettings.WeaponDPS.TextColor);
+            AddChild(weaponDPSMenu, "DPS size", settingsHub.AdvancedTooltipSettings.WeaponDPS.DPSTextSize);
+            AddChild(weaponDPSMenu, "DPS text size", settingsHub.AdvancedTooltipSettings.WeaponDPS.DPSNameTextSize);
+            AddChild(weaponDPSMenu, "Background color", settingsHub.AdvancedTooltipSettings.WeaponDPS.BackgroundColor);
             MenuItem itemSound = AddChild(itemAlertMenu, itemAlertStaticMenuList[2], settingsHub.ItemAlertSettings.PlaySound);
             AddChild(itemSound, "Sound volume", settingsHub.ItemAlertSettings.SoundVolume);
             MenuItem alertTextMenu = AddChild(itemAlertMenu, itemAlertStaticMenuList[3], settingsHub.ItemAlertSettings.ShowText);
@@ -392,10 +390,10 @@ namespace PoeHUD.Hud.Menu
             AddChild(preloadMenu, "Font size", settingsHub.PreloadAlertSettings.TextSize);
 
             // Monster alert
-            MenuItem MonsterTrackerMenu = AddChild(MenuRootButton, "Monster alert", settingsHub.MonsterTrackerSettings.Enable);
-            MenuItem alertSound = AddChild(MonsterTrackerMenu, "Sound warning", settingsHub.MonsterTrackerSettings.PlaySound);
+            MenuItem monsterTrackerMenu = AddChild(MenuRootButton, "Monster alert", settingsHub.MonsterTrackerSettings.Enable);
+            MenuItem alertSound = AddChild(monsterTrackerMenu, "Sound warning", settingsHub.MonsterTrackerSettings.PlaySound);
             AddChild(alertSound, "Sound volume", settingsHub.MonsterTrackerSettings.SoundVolume);
-            MenuItem warningTextMenu = AddChild(MonsterTrackerMenu, "Text warning", settingsHub.MonsterTrackerSettings.ShowText);
+            MenuItem warningTextMenu = AddChild(monsterTrackerMenu, "Text warning", settingsHub.MonsterTrackerSettings.ShowText);
             AddChild(warningTextMenu, "Text size", settingsHub.MonsterTrackerSettings.TextSize);
             AddChild(warningTextMenu, "Default text color:", settingsHub.MonsterTrackerSettings.DefaultTextColor);
             AddChild(warningTextMenu, "Background color:", settingsHub.MonsterTrackerSettings.BackgroundColor);
@@ -411,14 +409,14 @@ namespace PoeHUD.Hud.Menu
             AddChild(showMonsterKillsMenu, "Label font size", settingsHub.KillCounterSettings.LabelTextSize);
             AddChild(showMonsterKillsMenu, "Kills font size", settingsHub.KillCounterSettings.KillsTextSize);
 
-            // Dps options
-            MenuItem showDpsMenu = AddChild(MenuRootButton, "Show dps", settingsHub.DpsMeterSettings.Enable);
-            AddChild(showDpsMenu, "Show in town", settingsHub.DpsMeterSettings.ShowInTown);
-            AddChild(showDpsMenu, "Dps font size", settingsHub.DpsMeterSettings.DpsTextSize);
-            AddChild(showDpsMenu, "Top dps font size", settingsHub.DpsMeterSettings.PeakDpsTextSize);
-            AddChild(showDpsMenu, "Background color", settingsHub.DpsMeterSettings.BackgroundColor);
-            AddChild(showDpsMenu, "Dps font color", settingsHub.DpsMeterSettings.DpsFontColor);
-            AddChild(showDpsMenu, "Top dps font color", settingsHub.DpsMeterSettings.PeakFontColor);
+            // DPS options
+            MenuItem showDPSMenu = AddChild(MenuRootButton, "Show dps", settingsHub.DPSMeterSettings.Enable);
+            AddChild(showDPSMenu, "Show in town", settingsHub.DPSMeterSettings.ShowInTown);
+            AddChild(showDPSMenu, "DPS font size", settingsHub.DPSMeterSettings.DPSTextSize);
+            AddChild(showDPSMenu, "Top dps font size", settingsHub.DPSMeterSettings.PeakDPSTextSize);
+            AddChild(showDPSMenu, "Background color", settingsHub.DPSMeterSettings.BackgroundColor);
+            AddChild(showDPSMenu, "DPS font color", settingsHub.DPSMeterSettings.DPSFontColor);
+            AddChild(showDPSMenu, "Top dps font color", settingsHub.DPSMeterSettings.PeakFontColor);
 
             // Map icons
             MenuItem mapIconsMenu = AddChild(MenuRootButton, "Map icons", settingsHub.MapIconsSettings.Enable);
@@ -428,11 +426,11 @@ namespace PoeHUD.Hud.Menu
             AddChild(iconSizeMenu, "Rare Mob Icon", settingsHub.MonsterTrackerSettings.RareMobIcon);
             AddChild(iconSizeMenu, "Unique Mob Icon", settingsHub.MonsterTrackerSettings.UniqueMobIcon);
             AddChild(iconSizeMenu, "Minions Icon", settingsHub.MonsterTrackerSettings.MinionsIcon);
-            AddChild(iconSizeMenu, "Masters Icon", settingsHub.PoiTrackerSettings.MastersIcon);
-            AddChild(iconSizeMenu, "Chests Icon", settingsHub.PoiTrackerSettings.ChestsIcon);
-            AddChild(iconSizeMenu, "Strongboxes Icon", settingsHub.PoiTrackerSettings.StrongboxesIcon);
-            AddChild(iconSizeMenu, "PerandusChest Icon", settingsHub.PoiTrackerSettings.PerandusChestIcon);
-            AddChild(iconSizeMenu, "BreachChest Icon", settingsHub.PoiTrackerSettings.BreachChestIcon);
+            AddChild(iconSizeMenu, "Masters Icon", settingsHub.PoITrackerSettings.MastersIcon);
+            AddChild(iconSizeMenu, "Chests Icon", settingsHub.PoITrackerSettings.ChestsIcon);
+            AddChild(iconSizeMenu, "Strongboxes Icon", settingsHub.PoITrackerSettings.StrongboxesIcon);
+            AddChild(iconSizeMenu, "PerandusChest Icon", settingsHub.PoITrackerSettings.PerandusChestIcon);
+            AddChild(iconSizeMenu, "BreachChest Icon", settingsHub.PoITrackerSettings.BreachChestIcon);
             MenuItem itemLootIcon = AddChild(iconSizeMenu, "Item loot Icon", settingsHub.ItemAlertSettings.LootIcon);
             AddChild(iconSizeMenu, "Use border color for loot icon", settingsHub.ItemAlertSettings.LootIconBorderColor); // Adding a ToggleNode as a RangeNode child doesn't display it
             AddChild(mapIconsMenu, "Minimap icons", settingsHub.MapIconsSettings.IconsOnMinimap);
@@ -440,11 +438,11 @@ namespace PoeHUD.Hud.Menu
             AddChild(mapIconsMenu, "Drop items", settingsHub.ItemAlertSettings.ShowItemOnMap);
             AddChild(mapIconsMenu, "Monsters", settingsHub.MonsterTrackerSettings.Monsters);
             AddChild(mapIconsMenu, "Minions", settingsHub.MonsterTrackerSettings.Minions);
-            AddChild(mapIconsMenu, "Strongboxes", settingsHub.PoiTrackerSettings.Strongboxes);
-            AddChild(mapIconsMenu, "Chests", settingsHub.PoiTrackerSettings.Chests);
-            AddChild(mapIconsMenu, "Masters", settingsHub.PoiTrackerSettings.Masters);
+            AddChild(mapIconsMenu, "Strongboxes", settingsHub.PoITrackerSettings.Strongboxes);
+            AddChild(mapIconsMenu, "Chests", settingsHub.PoITrackerSettings.Chests);
+            AddChild(mapIconsMenu, "Masters", settingsHub.PoITrackerSettings.Masters);
 
-            //Menu Settings
+            // Menu Settings
             var menuSettings = AddChild(MenuRootButton, "Menu settings", settingsHub.MenuSettings.ShowMenu, "F12");
             AddChild(menuSettings, "Menu font color", settingsHub.MenuSettings.MenuFontColor);
             AddChild(menuSettings, "Title font color", settingsHub.MenuSettings.TitleFontColor);
@@ -456,10 +454,10 @@ namespace PoeHUD.Hud.Menu
             AddChild(menuSettings, "Title font size", settingsHub.MenuSettings.TitleFontSize);
             AddChild(menuSettings, "Picker font size", settingsHub.MenuSettings.PickerFontSize);
 
-            eInitMenu(MenuRootButton);//Spawning the menu in external plugins
+            ExternalInitMenu(MenuRootButton); // Spawning the menu in external plugins
         }
 
-        private bool OnMouseEvent(MouseEventID id, Point position)
+        private bool OnMouseEvent(MouseEventId id, Point position)
         {
             if (!Settings.Enable || !GameController.Window.IsForeground())
             {
@@ -468,9 +466,9 @@ namespace PoeHUD.Hud.Menu
 
             Vector2 mousePosition = GameController.Window.ScreenToClient(position.X, position.Y);
 
-            eMouseEvent(id, mousePosition);
+            ExternalMouseEvent(id, mousePosition);
 
-            bool result = ExternalMouseClick(id, mousePosition);//I dunno how to handle this in plugins. Seems there is only this way
+            bool result = ExternalMouseClick(id, mousePosition); // I dunno how to handle this in plugins. Seems there is only this way
 
             return MenuRootButton.OnMouseEvent(id, mousePosition) || result;
         }

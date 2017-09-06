@@ -1,22 +1,21 @@
-using PoeHUD.Controllers;
-using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.UI;
-using PoeHUD.Poe;
-using PoeHUD.Poe.Components;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PoEHUD.Controllers;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.UI;
+using PoEHUD.PoE;
+using PoEHUD.PoE.Components;
+using PoEHUD.PoE.RemoteMemoryObjects;
+using SharpDX;
 
-namespace PoeHUD.Hud.Icons
+namespace PoEHUD.HUD.Icons
 {
     public class MinimapPlugin : Plugin<MapIconsSettings>
     {
         private readonly Func<IEnumerable<MapIcon>> getIcons;
 
-        public MinimapPlugin(GameController gameController, Graphics graphics, Func<IEnumerable<MapIcon>> gatherMapIcons,
-            MapIconsSettings settings)
-            : base(gameController, graphics, settings)
+        public MinimapPlugin(GameController gameController, Graphics graphics, Func<IEnumerable<MapIcon>> gatherMapIcons, MapIconsSettings settings) : base(gameController, graphics, settings)
         {
             getIcons = gatherMapIcons;
         }
@@ -30,16 +29,16 @@ namespace PoeHUD.Hud.Icons
                     return;
                 }
 
-                Element smallMinimap = GameController.Game.IngameState.IngameUi.Map.SmallMinimap;
+                Element smallMinimap = GameController.Game.IngameState.IngameUI.Map.SmallMinimap;
                 if (!smallMinimap.IsVisible)
                 {
                     return;
                 }
 
-                Vector2 playerPos = GameController.Player.GetComponent<Positioned>().GridPos;
+                Vector2 playerPos = GameController.Player.GetComponent<Positioned>().GridPosition;
                 float posZ = GameController.Player.GetComponent<Render>().Z;
 
-                const float SCALE = 240f;
+                const float scale = 240f;
                 RectangleF mapRect = smallMinimap.GetClientRect();
                 var mapCenter = new Vector2(mapRect.X + mapRect.Width / 2, mapRect.Y + mapRect.Height / 2).Translate(0, 0);
                 double diag = Math.Sqrt(mapRect.Width * mapRect.Width + mapRect.Height * mapRect.Height) / 2.0;
@@ -47,13 +46,12 @@ namespace PoeHUD.Hud.Icons
                 {
                     float iconZ = icon.EntityWrapper.GetComponent<Render>().Z;
                     Vector2 point = mapCenter
-                        + MapIcon.DeltaInWorldToMinimapDelta(icon.WorldPosition - playerPos, diag, SCALE, (iconZ - posZ) / 20);
+                        + MapIcon.DeltaInWorldToMinimapDelta(icon.WorldPosition - playerPos, diag, scale, (iconZ - posZ) / 20);
 
-                    HudTexture texture = icon.TextureIcon;
+                    HUDTexture texture = icon.TextureIcon;
                     int size = icon.Size;
                     var rect = new RectangleF(point.X - size / 2f, point.Y - size / 2f, size, size);
-                    bool isContain;
-                    mapRect.Contains(ref rect, out isContain);
+                    mapRect.Contains(ref rect, out bool isContain);
                     if (isContain)
                     {
                         texture.Draw(Graphics, rect);
@@ -62,7 +60,7 @@ namespace PoeHUD.Hud.Icons
             }
             catch
             {
-                // do nothing
+                // ignore
             }
         }
     }

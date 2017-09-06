@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public class ButtonNode
     {

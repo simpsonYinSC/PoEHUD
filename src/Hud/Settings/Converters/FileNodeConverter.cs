@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
 
-namespace PoeHUD.Hud.Settings.Converters
+namespace PoEHUD.HUD.Settings.Converters
 {
     public class FileNodeConverter : CustomCreationConverter<FileNode>
     {
@@ -22,7 +22,10 @@ namespace PoeHUD.Hud.Settings.Converters
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var fileNode = value as FileNode;
-            if (fileNode != null) serializer.Serialize(writer, fileNode.Value);
+            if (fileNode != null)
+            {
+                serializer.Serialize(writer, fileNode.Value);
+            }
         }
     }
 }

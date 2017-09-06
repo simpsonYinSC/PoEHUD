@@ -1,11 +1,11 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.Hud.Interfaces;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
-using PoeHUD.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using PoEHUD.Controllers;
+using PoEHUD.HUD.Interfaces;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
+using PoEHUD.Models;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
     public abstract class PluginWithMapIcons<TSettings> : Plugin<TSettings>, IPluginWithMapIcons where TSettings : SettingsBase
     {
@@ -14,32 +14,37 @@ namespace PoeHUD.Hud
         protected PluginWithMapIcons(GameController gameController, Graphics graphics, TSettings settings) : base(gameController, graphics, settings)
         {
             CurrentIcons = new Dictionary<EntityWrapper, MapIcon>();
-            GameController.Area.OnAreaChange += delegate
+            GameController.Area.AreaChanged += delegate
              {
                  CurrentIcons.Clear();
              };
+        }
+
+        public IEnumerable<MapIcon> GetIcons()
+        {
+            var toRemove = new List<EntityWrapper>();
+            foreach (KeyValuePair<EntityWrapper, MapIcon> kv in CurrentIcons)
+            {
+                if (kv.Value.IsEntityStillValid())
+                {
+                    yield return kv.Value;
+                }
+                else
+                {
+                    toRemove.Add(kv.Key);
+                }
+            }
+
+            foreach (EntityWrapper wrapper in toRemove)
+            {
+                CurrentIcons.Remove(wrapper);
+            }
         }
 
         protected override void OnEntityRemoved(EntityWrapper entityWrapper)
         {
             base.OnEntityRemoved(entityWrapper);
             CurrentIcons.Remove(entityWrapper);
-        }
-
-        public IEnumerable<MapIcon> GetIcons()
-        {
-            var toRemove = new List<EntityWrapper>();
-            foreach (var kv in CurrentIcons)
-            {
-                if (kv.Value.IsEntityStillValid())
-                    yield return kv.Value;
-                else
-                    toRemove.Add(kv.Key);
-            }
-            foreach (EntityWrapper wrapper in toRemove)
-            {
-                CurrentIcons.Remove(wrapper);
-            }
         }
     }
 }

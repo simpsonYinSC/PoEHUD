@@ -1,17 +1,11 @@
-using PoeHUD.Models.Enums;
-using PoeHUD.Poe.RemoteMemoryObjects;
+using PoEHUD.Models.Enums;
+using PoEHUD.PoE.RemoteMemoryObjects;
 
-namespace PoeHUD.Poe.Elements
+namespace PoEHUD.PoE.Elements
 {
     public class InventoryElement : Element
     {
         private InventoryList AllInventories => GetObjectAt<InventoryList>(OffsetBuffers + 0x424);
-        public Inventory this[InventoryIndex k]
-        {
-            get
-            {
-                return AllInventories[k];
-            }
-        }
+        public Inventory this[InventoryIndex k] => AllInventories[k];
     }
 }

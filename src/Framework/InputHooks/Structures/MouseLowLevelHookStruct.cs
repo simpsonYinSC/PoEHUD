@@ -1,10 +1,10 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace PoeHUD.Framework.InputHooks.Structures
+namespace PoEHUD.Framework.InputHooks.Structures
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct MouseLLHookStruct
+    internal struct MouseLowLevelHookStruct
     {
         public Point Point;
         public int MouseData;

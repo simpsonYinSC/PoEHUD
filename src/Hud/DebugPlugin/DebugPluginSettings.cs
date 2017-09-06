@@ -1,6 +1,6 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 
-namespace PoeHUD.DebugPlug
+namespace PoEHUD.HUD.DebugPlugin
 {
     public class DebugPluginSettings : SettingsBase
     {

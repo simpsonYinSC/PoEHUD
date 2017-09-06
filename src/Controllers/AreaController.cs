@@ -1,34 +1,35 @@
-using PoeHUD.Models;
-using PoeHUD.Poe.RemoteMemoryObjects;
 using System;
+using PoEHUD.Models;
+using PoEHUD.PoE.RemoteMemoryObjects;
 
-namespace PoeHUD.Controllers
+namespace PoEHUD.Controllers
 {
     public class AreaController
     {
-        private readonly GameController Root;
+        private readonly GameController root;
 
         public AreaController(GameController gameController)
         {
-            Root = gameController;
+            root = gameController;
         }
 
-        public event Action<AreaController> OnAreaChange;
+        public event Action<AreaController> AreaChanged;
 
         public AreaInstance CurrentArea { get; private set; }
 
         public void RefreshState()
         {
-   
-            var igsd = Root.Game.IngameState.Data;
-            AreaTemplate clientsArea = igsd.CurrentArea;
-            int curAreaHash = igsd.CurrentAreaHash;
+            var ingameStateData = root.Game.IngameState.Data;
+            AreaTemplate clientsArea = ingameStateData.CurrentArea;
+            int currentAreaHash = ingameStateData.CurrentAreaHash;
 
-            if (CurrentArea != null && curAreaHash == CurrentArea.Hash)
+            if (CurrentArea != null && currentAreaHash == CurrentArea.Hash)
+            {
                 return;
-            
-            CurrentArea = new AreaInstance(clientsArea, curAreaHash, igsd.CurrentAreaLevel);
-            OnAreaChange?.Invoke(this);
+            }
+
+            CurrentArea = new AreaInstance(clientsArea, currentAreaHash, ingameStateData.CurrentAreaLevel);
+            AreaChanged?.Invoke(this);
         }
     }
 }

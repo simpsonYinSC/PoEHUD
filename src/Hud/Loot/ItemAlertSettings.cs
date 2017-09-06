@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using PoeHUD.Hud.Settings;
+using PoEHUD.HUD.Settings;
 
-namespace PoeHUD.Hud.Loot
+namespace PoEHUD.HUD.Loot
 {
     public sealed class ItemAlertSettings : SettingsBase
     {

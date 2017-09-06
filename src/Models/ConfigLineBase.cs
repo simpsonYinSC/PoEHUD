@@ -1,6 +1,6 @@
 using SharpDX;
 
-namespace PoeHUD.Models
+namespace PoEHUD.Models
 {
     public abstract class ConfigLineBase
     {
@@ -9,7 +9,7 @@ namespace PoeHUD.Models
 
         public override bool Equals(object obj)
         {
-            return Text == ((ConfigLineBase)obj).Text;
+            return Text == ((ConfigLineBase)obj)?.Text;
         }
 
         public override int GetHashCode()

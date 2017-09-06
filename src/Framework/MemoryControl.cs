@@ -2,47 +2,33 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace PoeHUD.Framework
+namespace PoEHUD.Framework
 {
     public class MemoryControl
     {
         private static MemoryControl memoryControl;
-        private long lastTime;
 
         private MemoryControl()
         {
-            lastTime = DateTime.Now.Ticks;
+            long lastTime = DateTime.Now.Ticks;
             Application.Idle += delegate
             {
                 try
                 {
                     long ticks = DateTime.Now.Ticks;
-                    if (ticks - lastTime > 10000000L)
+                    if (ticks - lastTime <= 10000000L)
                     {
-                        lastTime = ticks;
-                        MemoryFree();
+                        return;
                     }
+
+                    lastTime = ticks;
+                    MemoryFree();
                 }
                 catch
                 {
                     // ignored
                 }
             };
-        }
-
-        private void MemoryFree()
-        {
-            try
-            {
-                using (Process currentProcess = Process.GetCurrentProcess())
-                {
-                    WinApi.SetProcessWorkingSetSize(currentProcess.Handle, -1, -1);
-                }
-            }
-            catch
-            {
-                // ignored
-            }
         }
 
         public static void Start()
@@ -52,6 +38,21 @@ namespace PoeHUD.Framework
                 if (memoryControl == null && Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
                     memoryControl = new MemoryControl();
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
+        private static void MemoryFree()
+        {
+            try
+            {
+                using (Process currentProcess = Process.GetCurrentProcess())
+                {
+                    WindowsAPI.SetProcessWorkingSetSize(currentProcess.Handle, -1, -1);
                 }
             }
             catch

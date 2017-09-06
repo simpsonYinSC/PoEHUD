@@ -1,7 +1,7 @@
-using PoeHUD.Poe.Elements;
 using System.Collections.Generic;
+using PoEHUD.PoE.Elements;
 
-namespace PoeHUD.Poe.RemoteMemoryObjects
+namespace PoEHUD.PoE.RemoteMemoryObjects
 {
     public class IngameUIElements : RemoteMemoryObject
     {
@@ -20,8 +20,8 @@ namespace PoeHUD.Poe.RemoteMemoryObjects
                 return itemsOnGroundLabelRoot.Children;
             }
         }
-        public Element GemLvlUpPanel => ReadObjectAt<Element>(0xF00);
+
+        public Element GemLevelUpPanel => ReadObjectAt<Element>(0xF00);
         public ItemOnGroundTooltip ItemOnGroundTooltip => ReadObjectAt<ItemOnGroundTooltip>(0xF60);
     }
 }
-

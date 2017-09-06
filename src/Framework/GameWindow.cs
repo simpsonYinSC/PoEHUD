@@ -1,10 +1,10 @@
-using SharpDX;
 using System;
 using System.Diagnostics;
+using SharpDX;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace PoeHUD.Framework
+namespace PoEHUD.Framework
 {
     public class GameWindow
     {
@@ -20,19 +20,19 @@ namespace PoeHUD.Framework
 
         public RectangleF GetWindowRectangle()
         {
-            Rectangle rectangle = WinApi.GetClientRectangle(handle);
+            Rectangle rectangle = WindowsAPI.GetClientRectangle(handle);
             return new RectangleF(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
         }
 
         public bool IsForeground()
         {
-            return WinApi.IsForegroundWindow(handle);
+            return WindowsAPI.IsForegroundWindow(handle);
         }
 
         public Vector2 ScreenToClient(int x, int y)
         {
             var point = new Point(x, y);
-            WinApi.ScreenToClient(handle, ref point);
+            WindowsAPI.ScreenToClient(handle, ref point);
             return new Vector2(point.X, point.Y);
         }
     }

@@ -1,15 +1,16 @@
-using PoeHUD.Framework;
-using PoeHUD.Models;
-using PoeHUD.Poe.Components;
-using PoeHUD.Poe.RemoteMemoryObjects;
 using System.Collections.Generic;
 using System.Linq;
+using PoEHUD.Framework;
+using PoEHUD.Models;
+using PoEHUD.PoE.Components;
+using PoEHUD.PoE.RemoteMemoryObjects;
 
-namespace PoeHUD.Controllers
+namespace PoEHUD.Controllers
 {
     public class GameController
     {
         public static GameController Instance;
+
         public GameController(Memory memory)
         {
             Instance = this;
@@ -18,7 +19,7 @@ namespace PoeHUD.Controllers
             EntityListWrapper = new EntityListWrapper(this);
             Window = new GameWindow(memory.Process);
             Game = new TheGame(memory);
-            Files = new FsController(memory);
+            Files = new FileSystemController(memory);
         }
 
         public EntityListWrapper EntityListWrapper { get; }
@@ -34,15 +35,17 @@ namespace PoeHUD.Controllers
 
         public bool InGame => Game.IngameState.InGame;
 
-        public FsController Files { get; private set; }
+        public FileSystemController Files { get; private set; }
 
         public void RefreshState()
         {
-            if (InGame)
+            if (!InGame)
             {
-                EntityListWrapper.RefreshState();
-                Area.RefreshState();
+                return;
             }
+
+            EntityListWrapper.RefreshState();
+            Area.RefreshState();
         }
 
         public List<EntityWrapper> GetAllPlayerMinions()

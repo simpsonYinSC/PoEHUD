@@ -1,6 +1,6 @@
-using PoeHUD.Poe;
+using PoEHUD.PoE;
 
-namespace PoeHUD.Models.Interfaces
+namespace PoEHUD.Models.Interfaces
 {
     public interface IEntity
     {

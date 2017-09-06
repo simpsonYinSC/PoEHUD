@@ -1,6 +1,6 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 
-namespace PoeHUD.Hud.Health
+namespace PoEHUD.HUD.Health
 {
     public sealed class HealthBarSettings : SettingsBase
     {

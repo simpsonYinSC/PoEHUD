@@ -1,15 +1,15 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.Hud.Interfaces;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
-using PoeHUD.Models;
-using SharpDX;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using PoEHUD.Controllers;
+using PoEHUD.HUD.Interfaces;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
+using PoEHUD.Models;
+using SharpDX;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
     public abstract class Plugin<TSettings> : IPlugin where TSettings : SettingsBase
     {
@@ -42,11 +42,13 @@ namespace PoeHUD.Hud
             {
                 phi -= 2 * Math.PI;
             }
+
             var xSprite = (float)Math.Round(phi / Math.PI * 4);
             if (xSprite >= 8)
             {
                 xSprite = 0;
             }
+
             float ySprite = distance > 60 ? distance > 120 ? 2 : 1 : 0;
             float x = xSprite / 8;
             float y = ySprite / 3;
@@ -72,13 +74,18 @@ namespace PoeHUD.Hud
             string[] lines = File.ReadAllLines(path);
             foreach (string line in lines.Select(a => a.Trim()))
             {
-                if (string.IsNullOrWhiteSpace(line) || line.IndexOf(',') < 0 || line.StartsWith("#")) // Ignore empty lines, those without , and comments
+                // Ignore empty lines, those without , and comments
+                if (string.IsNullOrWhiteSpace(line) || line.IndexOf(',') < 0 || line.StartsWith("#"))
+                {
                     continue;
-                List<string> Values = line.Split(',').Select(s => s.Trim()).ToList(); // Split comma separated Values into the List of strings
-                string name = Values[0];  // Key Value for the Dictionary
-                Values.RemoveAt(0); // remove the key-Value from the List
-                result.Add(name, Values);
+                }
+
+                List<string> values = line.Split(',').Select(s => s.Trim()).ToList(); // Split comma separated Values into the List of strings
+                string name = values[0];  // Key Value for the Dictionary
+                values.RemoveAt(0); // remove the key-Value from the List
+                result.Add(name, values);
             }
+
             return result;
         }
 

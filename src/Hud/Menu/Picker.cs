@@ -1,10 +1,10 @@
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
+using System;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
 using SharpDX;
 using SharpDX.Direct3D9;
-using System;
 
-namespace PoeHUD.Hud.Menu
+namespace PoEHUD.HUD.Menu
 {
     public class Picker<T> : MenuItem where T : struct
     {
@@ -23,7 +23,11 @@ namespace PoeHUD.Hud.Menu
 
         public override void Render(Graphics graphics, MenuSettings settings)
         {
-            if (!IsVisible) { return; }
+            if (!IsVisible)
+            {
+                return;
+            }
+
             base.Render(graphics, settings);
             var textValue = $"{name} : {node.Value}";
             var textPosition = new Vector2(Bounds.X - 50 + Bounds.Width / 3, Bounds.Y + Bounds.Height / 2);
@@ -34,24 +38,23 @@ namespace PoeHUD.Hud.Menu
             graphics.DrawImage("menu-picker.png", new RectangleF(Bounds.X + 5 + sliderPosition - 2, Bounds.Y + 3 * Bounds.Height / 4 + 2, 4, 4));
         }
 
-        protected override void HandleEvent(MouseEventID id, Vector2 pos)
+        protected override void HandleEvent(MouseEventId id, Vector2 pos)
         {
             switch (id)
             {
-                case MouseEventID.LeftButtonDown:
+                case MouseEventId.LeftButtonDown:
                     isHolding = true;
                     break;
-
-                case MouseEventID.LeftButtonUp:
+                case MouseEventId.LeftButtonUp:
                     CalcValue(pos.X);
                     isHolding = false;
                     break;
-
                 default:
-                    if (isHolding && id == MouseEventID.MouseMove)
+                    if (isHolding && id == MouseEventId.MouseMove)
                     {
                         CalcValue(pos.X);
                     }
+
                     break;
             }
         }
@@ -59,6 +62,11 @@ namespace PoeHUD.Hud.Menu
         protected override bool TestBounds(Vector2 pos)
         {
             return isHolding || base.TestBounds(pos);
+        }
+
+        private static float MinusFloat(T one, T two)
+        {
+            return (float)((dynamic)one - two);
         }
 
         private void CalcValue(float x)
@@ -72,11 +80,6 @@ namespace PoeHUD.Hud.Menu
             }
 
             node.Value = (T)(dynamic)Math.Round((float)(dynamic)node.Min + num3 * MinusFloat(node.Max, node.Min));
-        }
-
-        private float MinusFloat(T one, T two)
-        {
-            return (float)((dynamic)one - two);
         }
     }
 }

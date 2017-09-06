@@ -1,30 +1,30 @@
-using PoeHUD.Framework;
 using System.Collections.Generic;
+using PoEHUD.Framework;
 
-namespace PoeHUD.Poe
+namespace PoEHUD.PoE
 {
     public abstract class FileInMemory
     {
-        protected FileInMemory(Memory m, long address)
+        protected FileInMemory(Memory memory, long address)
         {
-            M = m;
+            Memory = memory;
             Address = address;
         }
 
-        public Memory M { get; }
-        public long Address { get; }
-        private int NumberOfRecords => M.ReadInt(Address + 0x48, 0x28);
+        protected Memory Memory { get; }
+        private long Address { get; }
+        private int NumberOfRecords => Memory.ReadInt(Address + 0x48, 0x28);
 
         protected IEnumerable<long> RecordAddresses()
-        {       
-            long firstRec = M.ReadLong(Address + 0x48, 0x8);
-            long lastRec = M.ReadLong(Address + 0x48, 0x10);
-            int cnt = NumberOfRecords;
-            long recLen = (lastRec - firstRec) / cnt;
-       
-            for (int i = 0; i < cnt; i++)
+        {
+            long firstRecord = Memory.ReadLong(Address + 0x48, 0x8);
+            long lastRecord = Memory.ReadLong(Address + 0x48, 0x10);
+            int count = NumberOfRecords;
+            long recordLength = (lastRecord - firstRecord) / count;
+
+            for (int i = 0; i < count; i++)
             {
-                yield return firstRec + i * recLen;
+                yield return firstRecord + i * recordLength;
             }
         }
     }

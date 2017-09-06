@@ -1,7 +1,7 @@
-PoeHud
+PoEHUD
 ======
 
-Though it has been a while, people still have gotten banned from using this program, as It is against the TOS of Path of Exile.  Use at your own risk!
+Though it has been a while, people still have gotten banned from using this program, as It is against the TOS of Path of Exile. Use at your own risk!
 
 Reads data from Path of Exile client application and displays it on transparent overlay, while you play PoE.
 Without writing to it so no map hack, disabling particles, zoom hack, fullbright.
@@ -13,8 +13,8 @@ Donations can be made [here](https://www.paypal.me/TehCheat)
 
 * Press F12 to show / hide the Menu
 * Press F9 to show / hide Item Mods
-* Hold F10 to hide all huds
 * Press F5 to refresh the current area.
+* Hold F10 to hide all huds
 
 ### Available features
 

@@ -1,41 +1,50 @@
-﻿using PoeHUD.Hud.UI;
-using PoeHUD.Models.Enums;
+﻿using PoEHUD.HUD.UI;
+using PoEHUD.Models.Enums;
 using SharpDX;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
-    public class HudTexture
+    public class HUDTexture
     {
-        private string fileName;
         private readonly Color color;
+        private string fileName;
 
-        public HudTexture(string fileName) : this(fileName, Color.White)
+        public HUDTexture(string fileName) : this(fileName, Color.White)
         {
         }
 
-        public HudTexture(string fileName, MonsterRarity rarity)
-            : this(fileName, Color.White)
+        public HUDTexture(string fileName, MonsterRarity rarity) : this(fileName, Color.White)
         {
             switch (rarity)
             {
                 case MonsterRarity.Magic:
-                    color = HudSkin.MagicColor;
+                    color = HUDSkin.MagicColor;
                     break;
-
                 case MonsterRarity.Rare:
-                    color = HudSkin.RareColor;
+                    color = HUDSkin.RareColor;
                     break;
-
                 case MonsterRarity.Unique:
-                    color = HudSkin.UniqueColor;
+                    color = HUDSkin.UniqueColor;
                     break;
             }
         }
 
-        public HudTexture(string fileName, Color color)
+        public HUDTexture(string fileName, Color color)
         {
             this.fileName = fileName;
             this.color = color;
+        }
+
+        public string FileName
+        {
+            get => fileName;
+            set
+            {
+                if (fileName != null && fileName != value)
+                {
+                    fileName = value;
+                }
+            }
         }
 
         public void Draw(Graphics graphics, RectangleF rectangle)
@@ -46,16 +55,6 @@ namespace PoeHUD.Hud
         public void DrawPluginImage(Graphics graphics, RectangleF rectangle)
         {
             graphics.DrawPluginImage(fileName, rectangle, color);
-        }
-
-        public string FileName
-        {
-            get { return fileName; }
-            set
-            {
-                if (fileName != null && fileName != value)
-                    fileName = value;
-            }
         }
     }
 }

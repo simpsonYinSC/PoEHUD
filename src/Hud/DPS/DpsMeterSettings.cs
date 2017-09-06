@@ -1,25 +1,25 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 using SharpDX;
 
-namespace PoeHUD.Hud.Dps
+namespace PoEHUD.HUD.DPS
 {
-    public sealed class DpsMeterSettings : SettingsBase
+    public sealed class DPSMeterSettings : SettingsBase
     {
-        public DpsMeterSettings()
+        public DPSMeterSettings()
         {
             Enable = false;
             ShowInTown = false;
-            DpsTextSize = new RangeNode<int>(16, 10, 20);
-            PeakDpsTextSize = new RangeNode<int>(16, 10, 20);
-            DpsFontColor = new ColorBGRA(220, 190, 130, 255);
+            DPSTextSize = new RangeNode<int>(16, 10, 20);
+            PeakDPSTextSize = new RangeNode<int>(16, 10, 20);
+            DPSFontColor = new ColorBGRA(220, 190, 130, 255);
             PeakFontColor = new ColorBGRA(220, 190, 130, 255);
             BackgroundColor = new ColorBGRA(0, 0, 0, 255);
         }
 
         public ToggleNode ShowInTown { get; set; }
-        public RangeNode<int> DpsTextSize { get; set; }
-        public RangeNode<int> PeakDpsTextSize { get; set; }
-        public ColorNode DpsFontColor { get; set; }
+        public RangeNode<int> DPSTextSize { get; set; }
+        public RangeNode<int> PeakDPSTextSize { get; set; }
+        public ColorNode DPSFontColor { get; set; }
         public ColorNode PeakFontColor { get; set; }
         public ColorNode BackgroundColor { get; set; }
     }

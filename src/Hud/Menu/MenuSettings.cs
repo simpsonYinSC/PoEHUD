@@ -1,14 +1,15 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 using SharpDX;
 
-namespace PoeHUD.Hud.Menu
+namespace PoEHUD.HUD.Menu
 {
     public sealed class MenuSettings : SettingsBase
     {
         public MenuSettings()
         {
             Enable = true;
-            X = 10; Y = 85;
+            X = 10;
+            Y = 85;
             ShowMenu = true;
             TitleName = "≡";
             TitleFontColor = new ColorBGRA(255, 0, 0, 255);

@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 
-namespace PoeHUD.Models
+namespace PoEHUD.Models
 {
     public struct Pattern
     {
@@ -17,7 +17,7 @@ namespace PoeHUD.Models
 
         public Pattern(string pattern, string mask)
         {
-            var arr = pattern.Split(new[] { "\\x" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] arr = pattern.Split(new[] { "\\x" }, StringSplitOptions.RemoveEmptyEntries);
             Bytes = arr.Select(y => byte.Parse(y, NumberStyles.HexNumber)).ToArray();
             Mask = mask;
         }

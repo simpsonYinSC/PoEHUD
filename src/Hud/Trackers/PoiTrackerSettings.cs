@@ -1,11 +1,11 @@
-using PoeHUD.Hud.Settings;
+using PoEHUD.HUD.Settings;
 using SharpDX;
 
-namespace PoeHUD.Hud.Trackers
+namespace PoEHUD.HUD.Trackers
 {
-    public sealed class PoiTrackerSettings : SettingsBase
+    public sealed class PoITrackerSettings : SettingsBase
     {
-        public PoiTrackerSettings()
+        public PoITrackerSettings()
         {
             Enable = true;
             Masters = true;

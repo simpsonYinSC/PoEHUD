@@ -1,11 +1,11 @@
-﻿using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
+﻿using System.Threading.Tasks;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
 using SharpDX;
 using SharpDX.Direct3D9;
-using System.Threading.Tasks;
-using ColorGdi = System.Drawing.Color;
+using ColorGDI = System.Drawing.Color;
 
-namespace PoeHUD.Hud.Menu
+namespace PoEHUD.HUD.Menu
 {
     public sealed class ColorButton : MenuItem
     {
@@ -23,7 +23,11 @@ namespace PoeHUD.Hud.Menu
 
         public override void Render(Graphics graphics, MenuSettings settings)
         {
-            if (!IsVisible) { return; }
+            if (!IsVisible)
+            {
+                return;
+            }
+
             base.Render(graphics, settings);
 
             float colorSize = DesiredHeight - 6;
@@ -34,30 +38,33 @@ namespace PoeHUD.Hud.Menu
             graphics.DrawImage("menu-colors.png", colorBox, node.Value);
         }
 
-        protected override async void HandleEvent(MouseEventID id, Vector2 pos)
+        // TODO: async void is a bad practice there
+        protected override async void HandleEvent(MouseEventId id, Vector2 pos)
         {
-            if (id == MouseEventID.LeftButtonDown)
+            if (id != MouseEventId.LeftButtonDown)
             {
-                var colorDialog = new CustomColorDialog(GetColorGdi(node));
-                await Task.Run(() =>
-                {
-                    if (colorDialog.Show())
-                    {
-                        node.Value = GetColor(colorDialog.SelectedColor);
-                    }
-                });
+                return;
             }
+
+            var colorDialog = new CustomColorDialog(GetColorGdi(node));
+            await Task.Run(() =>
+            {
+                if (colorDialog.Show())
+                {
+                    node.Value = GetColor(colorDialog.SelectedColor);
+                }
+            });
         }
 
-        private static Color GetColor(ColorGdi color)
+        private static Color GetColor(ColorGDI color)
         {
             return Color.FromRgba(color.B | (color.G << 8) | (color.R << 16) | (color.A << 24));
         }
 
-        private static ColorGdi GetColorGdi(ColorNode node)
+        private static ColorGDI GetColorGdi(ColorNode node)
         {
             Color color = node.Value;
-            return ColorGdi.FromArgb((color.A << 24) | (color.B << 16) | (color.G << 8) | color.R);
+            return ColorGDI.FromArgb((color.A << 24) | (color.B << 16) | (color.G << 8) | color.R);
         }
     }
 }

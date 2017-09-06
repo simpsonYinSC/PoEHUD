@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public sealed class SortContractResolver : DefaultContractResolver
     {
-        private const int MAX_PROPERTIES_PER_CONTRACT = 1000;
+        private const int MaxPropertiesPerContract = 1000;
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
@@ -21,7 +21,7 @@ namespace PoeHUD.Hud.Settings
 
             return members.Select(member => CreateProperty(member, memberSerialization))
                 .Where(x => x != null)
-                .OrderBy(x => MAX_PROPERTIES_PER_CONTRACT * GetTypeDepth(x.DeclaringType) + (x.Order ?? 0))
+                .OrderBy(x => MaxPropertiesPerContract * GetTypeDepth(x.DeclaringType) + (x.Order ?? 0))
                 .ToList();
         }
 
@@ -32,6 +32,7 @@ namespace PoeHUD.Hud.Settings
             {
                 depth++;
             }
+
             return depth;
         }
     }

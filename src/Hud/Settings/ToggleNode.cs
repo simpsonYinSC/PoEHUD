@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public sealed class ToggleNode
     {
@@ -16,21 +16,18 @@ namespace PoeHUD.Hud.Settings
             Value = value;
         }
 
-        public void SetValueNoEvent(bool newValue)
-        {
-            value = newValue;
-        }
-
         public bool Value
         {
-            get { return value; }
+            get => value;
             set
             {
-                if (this.value != value)
+                if (this.value == value)
                 {
-                    this.value = value;
-                    OnValueChanged?.Invoke();
+                    return;
                 }
+
+                this.value = value;
+                OnValueChanged?.Invoke();
             }
         }
 
@@ -42,6 +39,11 @@ namespace PoeHUD.Hud.Settings
         public static implicit operator ToggleNode(bool value)
         {
             return new ToggleNode(value);
+        }
+
+        public void SetValueNoEvent(bool newValue)
+        {
+            value = newValue;
         }
     }
 }

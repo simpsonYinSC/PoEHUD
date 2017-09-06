@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace PoeHUD.Framework.InputHooks.Structures
+namespace PoEHUD.Framework.InputHooks.Structures
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct KeyboardHookStruct

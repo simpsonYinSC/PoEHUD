@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public sealed class RangeNode<T> where T : struct
     {

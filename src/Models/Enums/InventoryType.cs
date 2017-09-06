@@ -1,8 +1,8 @@
-﻿namespace PoeHUD.Models.Enums
+﻿namespace PoEHUD.Models.Enums
 {
     public enum InventoryType
     {
-        InvalidInventory, //Incase inventory isn't opened.
+        InvalidInventory, // Incase inventory isn't opened.
         PlayerInventory,
         NormalStash,
         QuadStash,

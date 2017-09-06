@@ -1,4 +1,4 @@
-﻿namespace PoeHUD.Models
+﻿namespace PoEHUD.Models
 {
     public class MonsterConfigLine : ConfigLineBase
     {

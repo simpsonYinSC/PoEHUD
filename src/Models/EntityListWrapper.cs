@@ -1,88 +1,79 @@
-using PoeHUD.Controllers;
-using PoeHUD.Poe;
-using PoeHUD.Poe.Elements;
 using System;
 using System.Collections.Generic;
+using PoEHUD.Controllers;
+using PoEHUD.PoE;
+using PoEHUD.PoE.Elements;
 
-namespace PoeHUD.Models
+namespace PoEHUD.Models
 {
     public sealed class EntityListWrapper
     {
         private readonly GameController gameController;
         private readonly HashSet<string> ignoredEntities;
         private Dictionary<long, EntityWrapper> entityCache;
+        private EntityWrapper player;
 
         public EntityListWrapper(GameController gameController)
         {
             this.gameController = gameController;
             entityCache = new Dictionary<long, EntityWrapper>();
             ignoredEntities = new HashSet<string>();
-            gameController.Area.OnAreaChange += OnAreaChanged;
+            gameController.Area.AreaChanged += OnAreaChanged;
         }
 
-        public ICollection<EntityWrapper> Entities => entityCache.Values;
+        public event Action<EntityWrapper> EntityAdded;
+        public event Action<EntityWrapper> EntityRemoved;
 
-        private EntityWrapper player;
+        public IEnumerable<EntityWrapper> Entities => entityCache.Values;
 
         public EntityWrapper Player
         {
             get
             {
                 if (player == null)
+                {
                     UpdatePlayer();
+                }
+
                 return player;
             }
-        }
-
-        public event Action<EntityWrapper> EntityAdded;
-
-        public event Action<EntityWrapper> EntityRemoved;
-
-        private void OnAreaChanged(AreaController area)
-        {
-            ignoredEntities.Clear();
-            RemoveOldEntitiesFromCache();
-        }
-
-        private void RemoveOldEntitiesFromCache()
-        {
-            foreach (var current in Entities)
-            {
-                EntityRemoved?.Invoke(current);
-                current.IsInList = false;
-            }
-            entityCache.Clear();
         }
 
         public void RefreshState()
         {
             UpdatePlayer();
             if (gameController.Area.CurrentArea == null)
+            {
                 return;
+            }
 
             Dictionary<int, Entity> newEntities = gameController.Game.IngameState.Data.EntityList.EntitiesAsDictionary;
             var newCache = new Dictionary<long, EntityWrapper>();
-            foreach (var keyEntity in newEntities)
+            foreach (KeyValuePair<int, Entity> keyEntity in newEntities)
             {
                 if (!keyEntity.Value.IsValid)
+                {
                     continue;
+                }
 
-                long entityID = keyEntity.Key;
-                string uniqueEntityName = keyEntity.Value.Path + entityID;
+                long entityId = keyEntity.Key;
+                string uniqueEntityName = keyEntity.Value.Path + entityId;
 
                 if (ignoredEntities.Contains(uniqueEntityName))
-                    continue;
-
-                if (entityCache.ContainsKey(entityID) && entityCache[entityID].IsValid)
                 {
-                    newCache.Add(entityID, entityCache[entityID]);
-                    entityCache[entityID].IsInList = true;
-                    entityCache.Remove(entityID);
+                    continue;
+                }
+
+                if (entityCache.ContainsKey(entityId) && entityCache[entityId].IsValid)
+                {
+                    newCache.Add(entityId, entityCache[entityId]);
+                    entityCache[entityId].IsInList = true;
+                    entityCache.Remove(entityId);
                     continue;
                 }
 
                 var entity = new EntityWrapper(gameController, keyEntity.Value);
-                if (entity.Path.StartsWith("Metadata/Effects") || ((entityID & 0x80000000L) != 0L) ||
+                if (entity.Path.StartsWith("Metadata/Effects") || (entityId & 0x80000000L) != 0L ||
                     entity.Path.StartsWith("Metadata/Monsters/Daemon"))
                 {
                     ignoredEntities.Add(uniqueEntityName);
@@ -90,19 +81,11 @@ namespace PoeHUD.Models
                 }
 
                 EntityAdded?.Invoke(entity);
-                newCache.Add(entityID, entity);
+                newCache.Add(entityId, entity);
             }
+
             RemoveOldEntitiesFromCache();
             entityCache = newCache;
-        }
-
-        private void UpdatePlayer()
-        {
-            long address = gameController.Game.IngameState.Data.LocalPlayer.Address;
-            if ((player == null) || (player.Address != address))
-            {
-                player = new EntityWrapper(gameController, address);
-            }
         }
 
         public EntityWrapper GetEntityById(long id)
@@ -124,13 +107,41 @@ namespace PoeHUD.Models
                 {
                     break;
                 }
+
                 num = gameController.Memory.ReadLong(num);
                 if (hashSet.Contains(num) || num == 0 || num == -1)
                 {
                     return null;
                 }
             }
+
             return gameController.Game.ReadObject<EntityLabel>(num + 0x18);
+        }
+
+        private void OnAreaChanged(AreaController area)
+        {
+            ignoredEntities.Clear();
+            RemoveOldEntitiesFromCache();
+        }
+
+        private void RemoveOldEntitiesFromCache()
+        {
+            foreach (var current in Entities)
+            {
+                EntityRemoved?.Invoke(current);
+                current.IsInList = false;
+            }
+
+            entityCache.Clear();
+        }
+
+        private void UpdatePlayer()
+        {
+            long address = gameController.Game.IngameState.Data.LocalPlayer.Address;
+            if (player == null || player.Address != address)
+            {
+                player = new EntityWrapper(gameController, address);
+            }
         }
     }
 }

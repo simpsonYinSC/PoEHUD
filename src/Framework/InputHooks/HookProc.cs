@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PoeHUD.Framework.InputHooks
+namespace PoEHUD.Framework.InputHooks
 {
     public delegate int HookProc(int nCode, int wParam, IntPtr lParam);
 }

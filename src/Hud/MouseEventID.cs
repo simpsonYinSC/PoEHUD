@@ -1,6 +1,6 @@
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
-    public enum MouseEventID
+    public enum MouseEventId
     {
         MouseMove = 512,
         LeftButtonDown,

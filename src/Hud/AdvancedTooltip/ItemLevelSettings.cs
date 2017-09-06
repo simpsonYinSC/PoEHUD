@@ -1,7 +1,7 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 using SharpDX;
 
-namespace PoeHUD.Hud.AdvancedTooltip
+namespace PoEHUD.HUD.AdvancedTooltip
 {
     public sealed class ItemLevelSettings : SettingsBase
     {

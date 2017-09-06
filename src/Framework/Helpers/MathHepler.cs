@@ -1,13 +1,11 @@
-﻿using SharpDX;
-using System;
+﻿using System;
 using System.Linq;
+using SharpDX;
 
-namespace PoeHUD.Framework.Helpers
+namespace PoEHUD.Framework.Helpers
 {
     public static class MathHepler
     {
-        private const string CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
         static MathHepler()
         {
             Randomizer = new Random();
@@ -23,16 +21,19 @@ namespace PoeHUD.Framework.Helpers
             {
                 phi = MathUtil.TwoPi - phi;
             }
+
             return distance;
         }
 
         public static string GetRandomWord(int length)
         {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var array = new char[length];
             for (int i = 0; i < length; i++)
             {
-                array[i] = CHARS[Randomizer.Next(CHARS.Length)];
+                array[i] = chars[Randomizer.Next(chars.Length)];
             }
+
             return new string(array);
         }
 
@@ -43,6 +44,7 @@ namespace PoeHUD.Framework.Helpers
             {
                 max = Math.Max(max, values[i]);
             }
+
             return max;
         }
 

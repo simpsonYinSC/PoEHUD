@@ -1,18 +1,17 @@
-using PoeHUD.Models.Enums;
-using PoeHUD.Models.Interfaces;
-using PoeHUD.Poe.Components;
-using SharpDX;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using PoEHUD.Models.Enums;
+using PoEHUD.Models.Interfaces;
+using PoEHUD.PoE.Components;
+using SharpDX;
 
-namespace PoeHUD.Hud.Loot
+namespace PoEHUD.HUD.Loot
 {
     public class ItemUsefulProperties
     {
-        private readonly string _name;
-        private readonly IEntity _item;
-        private readonly CraftingBase _craftingBase;
+        private readonly string name;
+        private readonly IEntity item;
+        private readonly CraftingBase craftingBase;
         private ItemRarity rarity;
         private int quality, borderWidth, alertIcon = -1;
         private string alertText;
@@ -20,9 +19,9 @@ namespace PoeHUD.Hud.Loot
 
         public ItemUsefulProperties(string name, IEntity item, CraftingBase craftingBase)
         {
-            _name = name;
-            _item = item;
-            _craftingBase = craftingBase;
+            this.name = name;
+            this.item = item;
+            this.craftingBase = craftingBase;
         }
 
         public AlertDrawStyle GetDrawStyle()
@@ -32,43 +31,43 @@ namespace PoeHUD.Hud.Loot
 
         public bool ShouldAlert(HashSet<string> currencyNames, ItemAlertSettings settings)
         {
-            Mods mods = _item.GetComponent<Mods>();
+            Mods mods = item.GetComponent<Mods>();
             QualityItemsSettings qualitySettings = settings.QualityItems;
 
             rarity = mods.ItemRarity;
 
-            if (_item.HasComponent<Quality>())
+            if (item.HasComponent<Quality>())
             {
-                quality = _item.GetComponent<Quality>().ItemQuality;
+                quality = item.GetComponent<Quality>().ItemQuality;
             }
 
-            alertText = string.Concat(quality > 0 ? "Superior " : String.Empty, _name);
+            alertText = string.Concat(quality > 0 ? "Superior " : string.Empty, name);
 
-            if (settings.Maps && (_item.HasComponent<Map>() || _item.Path.Contains("VaalFragment")))
+            if (settings.Maps && (item.HasComponent<Map>() || item.Path.Contains("VaalFragment")))
             {
                 borderWidth = 1;
                 return true;
             }
 
-            if (settings.Currency && _item.Path.Contains("Currency"))
+            if (settings.Currency && item.Path.Contains("Currency"))
             {
-                color = HudSkin.CurrencyColor;
-                return currencyNames?.Contains(_name) ?? !_name.Contains("Wisdom") && !_name.Contains("Portal");
+                color = HUDSkin.CurrencyColor;
+                return currencyNames?.Contains(name) ?? !name.Contains("Wisdom") && !name.Contains("Portal");
             }
 
-            if (settings.DivinationCards && _item.Path.Contains("DivinationCards"))
+            if (settings.DivinationCards && item.Path.Contains("DivinationCards"))
             {
-                color = HudSkin.DivinationCardColor;
+                color = HUDSkin.DivinationCardColor;
                 return true;
             }
 
-            if (settings.Talisman && _item.Path.Contains("Talisman"))
+            if (settings.Talisman && item.Path.Contains("Talisman"))
             {
-                color = HudSkin.TalismanColor;
+                color = HUDSkin.TalismanColor;
                 return true;
             }
 
-            Sockets sockets = _item.GetComponent<Sockets>();
+            Sockets sockets = item.GetComponent<Sockets>();
 
             if (sockets.LargestLinkSize >= settings.MinLinks)
             {
@@ -76,6 +75,7 @@ namespace PoeHUD.Hud.Loot
                 {
                     alertIcon = 3;
                 }
+
                 return true;
             }
 
@@ -97,7 +97,7 @@ namespace PoeHUD.Hud.Loot
                 return true;
             }
 
-            if (settings.Jewels && _item.Path.Contains("Jewels"))
+            if (settings.Jewels && item.Path.Contains("Jewels"))
             {
                 return true;
             }
@@ -106,37 +106,42 @@ namespace PoeHUD.Hud.Loot
             {
                 case ItemRarity.Rare:
                     return settings.Rares;
-
                 case ItemRarity.Unique:
                     return settings.Uniques;
             }
 
-            if (qualitySettings.Enable)
+            if (!qualitySettings.Enable)
             {
-                if (qualitySettings.Flask.Enable && _item.HasComponent<Flask>())
-                {
-                    return quality >= qualitySettings.Flask.MinQuality;
-                }
-                if (qualitySettings.SkillGem.Enable && _item.HasComponent<SkillGem>())
-                {
-                    color = HudSkin.SkillGemColor;
-                    return quality >= qualitySettings.SkillGem.MinQuality;
-                }
-                if (qualitySettings.Weapon.Enable && _item.HasComponent<Weapon>())
-                {
-                    return quality >= qualitySettings.Weapon.MinQuality;
-                }
-                if (qualitySettings.Armour.Enable && _item.HasComponent<Armour>())
-                {
-                    return quality >= qualitySettings.Armour.MinQuality;
-                }
+                return false;
             }
+
+            if (qualitySettings.Flask.Enable && item.HasComponent<Flask>())
+            {
+                return quality >= qualitySettings.Flask.MinQuality;
+            }
+
+            if (qualitySettings.SkillGem.Enable && item.HasComponent<SkillGem>())
+            {
+                color = HUDSkin.SkillGemColor;
+                return quality >= qualitySettings.SkillGem.MinQuality;
+            }
+
+            if (qualitySettings.Weapon.Enable && item.HasComponent<Weapon>())
+            {
+                return quality >= qualitySettings.Weapon.MinQuality;
+            }
+
+            if (qualitySettings.Armour.Enable && item.HasComponent<Armour>())
+            {
+                return quality >= qualitySettings.Armour.MinQuality;
+            }
+
             return false;
         }
 
         private bool IsCraftingBase(int itemLevel)
         {
-            return !String.IsNullOrEmpty(_craftingBase.Name) && itemLevel >= _craftingBase.MinItemLevel && quality >= _craftingBase.MinQuality && (_craftingBase.Rarities == null || _craftingBase.Rarities.Contains(rarity));
+            return !string.IsNullOrEmpty(craftingBase.Name) && itemLevel >= craftingBase.MinItemLevel && quality >= craftingBase.MinQuality && (craftingBase.Rarities == null || craftingBase.Rarities.Contains(rarity));
         }
     }
 }

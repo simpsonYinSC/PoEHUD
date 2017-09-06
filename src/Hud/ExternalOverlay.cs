@@ -1,34 +1,35 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.DebugPlug;
-using PoeHUD.Framework;
-using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.AdvancedTooltip;
-using PoeHUD.Hud.Dps;
-using PoeHUD.Hud.Health;
-using PoeHUD.Hud.Icons;
-using PoeHUD.Hud.Interfaces;
-using PoeHUD.Hud.KillCounter;
-using PoeHUD.Hud.Loot;
-using PoeHUD.Hud.Menu;
-using PoeHUD.Hud.PluginExtension;
-using PoeHUD.Hud.Preload;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.Trackers;
-using PoeHUD.Hud.XpRate;
-using PoeHUD.Models.Enums;
-using PoeHUD.Poe;
-using SharpDX;
-using SharpDX.Windows;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PoEHUD.Controllers;
+using PoEHUD.Framework;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.AdvancedTooltip;
+using PoEHUD.HUD.DebugPlugin;
+using PoEHUD.HUD.DPS;
+using PoEHUD.HUD.Health;
+using PoEHUD.HUD.Icons;
+using PoEHUD.HUD.Interfaces;
+using PoEHUD.HUD.KillCounter;
+using PoEHUD.HUD.Loot;
+using PoEHUD.HUD.Menu;
+using PoEHUD.HUD.PluginExtension;
+using PoEHUD.HUD.Preload;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.Trackers;
+using PoEHUD.HUD.UI;
+using PoEHUD.HUD.XPRate;
+using PoEHUD.Models.Enums;
+using PoEHUD.PoE;
+using SharpDX;
+using SharpDX.Windows;
 using Color = System.Drawing.Color;
-using Graphics2D = PoeHUD.Hud.UI.Graphics;
+using Graphics2D = PoEHUD.HUD.UI.Graphics;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
     internal sealed class ExternalOverlay : RenderForm
     {
@@ -37,7 +38,7 @@ namespace PoeHUD.Hud
         private readonly Func<bool> gameEnded;
         private readonly IntPtr gameHandle;
         private readonly List<IPlugin> plugins = new List<IPlugin>();
-        private Graphics2D graphics;
+        private Graphics graphics;
 
         public ExternalOverlay(GameController gameController, Func<bool> gameEnded)
         {
@@ -62,6 +63,7 @@ namespace PoeHUD.Hud
             {
                 await Task.Delay(500);
             }
+
             graphics.Dispose();
             Close();
         }
@@ -71,7 +73,7 @@ namespace PoeHUD.Hud
             while (!gameEnded())
             {
                 await Task.Delay(1000);
-                Rectangle gameSize = WinApi.GetClientRectangle(gameHandle);
+                Rectangle gameSize = WindowsAPI.GetClientRectangle(gameHandle);
                 Bounds = gameSize;
             }
         }
@@ -85,7 +87,7 @@ namespace PoeHUD.Hud
         private Vector2 GetLeftCornerMap()
         {
             var ingameState = gameController.Game.IngameState;
-            RectangleF clientRect = ingameState.IngameUi.Map.SmallMinimap.GetClientRect();
+            RectangleF clientRect = ingameState.IngameUI.Map.SmallMinimap.GetClientRect();
             var diagnosticElement = ingameState.LatencyRectangle;
             switch (ingameState.DiagnosticInfoType)
             {
@@ -99,23 +101,25 @@ namespace PoeHUD.Hud
                     clientRect.X = fpsRectangle.X + fpsRectangle.Width + 6;
                     break;
             }
+
             return new Vector2(clientRect.X - 5, clientRect.Y + 5);
         }
 
         private Vector2 GetUnderCornerMap()
         {
-            const int EPSILON = 1;
-            Element questPanel = gameController.Game.IngameState.IngameUi.QuestTracker;
-            Element gemPanel = gameController.Game.IngameState.IngameUi.GemLvlUpPanel;
+            const int epsilon = 1;
+            Element questPanel = gameController.Game.IngameState.IngameUI.QuestTracker;
+            Element gemPanel = gameController.Game.IngameState.IngameUI.GemLevelUpPanel;
             RectangleF questPanelRect = questPanel.GetClientRect();
             RectangleF gemPanelRect = gemPanel.GetClientRect();
-            RectangleF clientRect = gameController.Game.IngameState.IngameUi.Map.SmallMinimap.GetClientRect();
-            if (gemPanel.IsVisible && Math.Abs(gemPanelRect.Right - clientRect.Right) < EPSILON)
+            RectangleF clientRect = gameController.Game.IngameState.IngameUI.Map.SmallMinimap.GetClientRect();
+            if (gemPanel.IsVisible && Math.Abs(gemPanelRect.Right - clientRect.Right) < epsilon)
             {
                 // gem panel is visible, add its height
                 clientRect.Height += gemPanelRect.Height;
             }
-            if (questPanel.IsVisible && Math.Abs(gemPanelRect.Right - clientRect.Right) < EPSILON)
+
+            if (questPanel.IsVisible && Math.Abs(gemPanelRect.Right - clientRect.Right) < epsilon)
             {
                 // quest panel is visible, add its height
                 clientRect.Height += questPanelRect.Height;
@@ -138,22 +142,22 @@ namespace PoeHUD.Hud
 
         private async void OnLoad(object sender, EventArgs e)
         {
-            Bounds = WinApi.GetClientRectangle(gameHandle);
-            WinApi.EnableTransparent(Handle, Bounds);
-            graphics = new Graphics2D(this, Bounds.Width, Bounds.Height);
+            Bounds = WindowsAPI.GetClientRectangle(gameHandle);
+            WindowsAPI.EnableTransparent(Handle, Bounds);
+            graphics = new Graphics(this, Bounds.Width, Bounds.Height);
 
             plugins.Add(new HealthBarPlugin(gameController, graphics, settings.HealthBarSettings));
             plugins.Add(new MinimapPlugin(gameController, graphics, GatherMapIcons, settings.MapIconsSettings));
             plugins.Add(new LargeMapPlugin(gameController, graphics, GatherMapIcons, settings.MapIconsSettings));
             plugins.Add(new MonsterTracker(gameController, graphics, settings.MonsterTrackerSettings));
-            plugins.Add(new PoiTracker(gameController, graphics, settings.PoiTrackerSettings));
+            plugins.Add(new PoITracker(gameController, graphics, settings.PoITrackerSettings));
 
             var leftPanel = new PluginPanel(GetLeftCornerMap);
-            leftPanel.AddChildren(new XpRatePlugin(gameController, graphics, settings.XpRateSettings, settings));
+            leftPanel.AddChildren(new XPRatePlugin(gameController, graphics, settings.XPRateSettings, settings));
             leftPanel.AddChildren(new PreloadAlertPlugin(gameController, graphics, settings.PreloadAlertSettings, settings));
             leftPanel.AddChildren(new KillCounterPlugin(gameController, graphics, settings.KillCounterSettings));
-            leftPanel.AddChildren(new DpsMeterPlugin(gameController, graphics, settings.DpsMeterSettings));
-            leftPanel.AddChildren(new DebugPlugin(gameController, graphics, new DebugPluginSettings(), settings));
+            leftPanel.AddChildren(new DPSMeterPlugin(gameController, graphics, settings.DPSMeterSettings));
+            leftPanel.AddChildren(new DebugPlugin.DebugPlugin(gameController, graphics, new DebugPluginSettings(), settings));
 
             var horizontalPanel = new PluginPanel(Direction.Left);
             leftPanel.AddChildren(horizontalPanel);
@@ -165,24 +169,29 @@ namespace PoeHUD.Hud
 
             plugins.Add(new AdvancedTooltipPlugin(gameController, graphics, settings.AdvancedTooltipSettings, settings));
             plugins.Add(new MenuPlugin(gameController, graphics, settings));
-            plugins.Add(new PluginExtensionPlugin(gameController, graphics));//Should be after MenuPlugin
+            plugins.Add(new PluginExtensionPlugin(gameController, graphics)); // Should be after MenuPlugin
 
             Deactivate += OnDeactivate;
             FormClosing += OnClosing;
 
             CheckGameWindow();
             CheckGameState();
-            graphics.Render += OnRender;
+            graphics.OnRender += OnRender;
             await Task.Run(() => graphics.RenderLoop());
         }
         
         private void OnRender()
         {
-            if (gameController.InGame && WinApi.IsForegroundWindow(gameHandle) && !gameController.Game.IngameState.IngameUi.TreePanel.IsVisible && !gameController.Game.IngameState.IngameUi.AtlasPanel.IsVisible)
+            if (!gameController.InGame
+                || !WindowsAPI.IsForegroundWindow(gameHandle)
+                || gameController.Game.IngameState.IngameUI.TreePanel.IsVisible
+                || gameController.Game.IngameState.IngameUI.AtlasPanel.IsVisible)
             {
-                gameController.RefreshState();
-                plugins.ForEach(x => x.Render());
+                return;
             }
+
+            gameController.RefreshState();
+            plugins.ForEach(x => x.Render());
         }
     }
 }

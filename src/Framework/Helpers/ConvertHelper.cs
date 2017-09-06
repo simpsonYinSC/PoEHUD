@@ -1,8 +1,9 @@
-﻿using SharpDX;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using SharpDX;
 
-namespace PoeHUD.Framework.Helpers
+namespace PoEHUD.Framework.Helpers
 {
     public static class ConvertHelper
     {
@@ -24,8 +25,7 @@ namespace PoeHUD.Framework.Helpers
 
         public static Color ToBGRAColor(this string value)
         {
-            uint bgra;
-            return uint.TryParse(value, NumberStyles.HexNumber, null, out bgra)
+            return uint.TryParse(value, NumberStyles.HexNumber, null, out uint bgra)
                 ? Color.FromBgra(bgra)
                 : Color.Black;
         }
@@ -40,9 +40,9 @@ namespace PoeHUD.Framework.Helpers
             return IsNotNull(line, index) ? line[index] : null;
         }
 
-        private static bool IsNotNull(string[] line, int index)
+        private static bool IsNotNull(IReadOnlyList<string> line, int index)
         {
-            return line.Length > index && !string.IsNullOrEmpty(line[index]);
+            return line.Count > index && !string.IsNullOrEmpty(line[index]);
         }
     }
 }

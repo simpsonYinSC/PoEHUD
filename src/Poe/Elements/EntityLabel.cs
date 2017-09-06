@@ -1,4 +1,4 @@
-namespace PoeHUD.Poe.Elements
+namespace PoEHUD.PoE.Elements
 {
     public class EntityLabel : Element
     {
@@ -6,12 +6,15 @@ namespace PoeHUD.Poe.Elements
         {
             get
             {
-                int LabelLen = M.ReadInt(Address + 0xC28);
-                if (LabelLen <= 0 || LabelLen > 256)
+                int labelLen = Memory.ReadInt(Address + 0xC28);
+                if (labelLen <= 0 || labelLen > 256)
                 {
-                    return "";
+                    return string.Empty;
                 }
-                return LabelLen >= 8 ? M.ReadStringU(M.ReadInt(Address + 0xC18), LabelLen * 2) : M.ReadStringU(Address + 0xC18, LabelLen * 2);
+
+                return labelLen >= 8
+                    ? Memory.ReadStringU(Memory.ReadInt(Address + 0xC18), labelLen * 2)
+                    : Memory.ReadStringU(Address + 0xC18, labelLen * 2);
             }
         }
     }

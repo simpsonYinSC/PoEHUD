@@ -1,4 +1,4 @@
-﻿namespace PoeHUD.Poe.Elements
+﻿namespace PoEHUD.PoE.Elements
 {
     public class ItemOnGroundTooltip : Element
     {

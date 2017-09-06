@@ -1,9 +1,13 @@
 ﻿using System;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public sealed class FileNode
     {
+        public Action OnFileChanged;
+
+        private string value;
+
         public FileNode()
         {
         }
@@ -13,13 +17,9 @@ namespace PoeHUD.Hud.Settings
             Value = value;
         }
 
-        public Action OnFileChanged;
-
-        private string value;
-
         public string Value
         {
-            get { return value; }
+            get => value;
             set
             {
                 this.value = value;

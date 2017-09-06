@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace PoeHUD.Framework.InputHooks
+namespace PoEHUD.Framework.InputHooks
 {
     public class KeyInfo
     {

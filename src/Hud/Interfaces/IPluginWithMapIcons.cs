@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PoeHUD.Hud.Interfaces
+namespace PoEHUD.HUD.Interfaces
 {
     public interface IPluginWithMapIcons
     {

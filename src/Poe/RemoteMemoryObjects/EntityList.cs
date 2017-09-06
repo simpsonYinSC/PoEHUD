@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PoeHUD.Poe.RemoteMemoryObjects
+namespace PoEHUD.PoE.RemoteMemoryObjects
 {
     public class EntityList : RemoteMemoryObject
     {
@@ -11,39 +11,44 @@ namespace PoeHUD.Poe.RemoteMemoryObjects
             get
             {
                 var dictionary = new Dictionary<int, Entity>();
-                CollectEntities(M.ReadLong(Address), dictionary);
+                CollectEntities(Memory.ReadLong(Address), dictionary);
                 return dictionary;
             }
         }
 
-        private void CollectEntities(long addr, Dictionary<int, Entity> list)
+        private void CollectEntities(long address, IDictionary<int, Entity> list)
         {
-            long num = addr;
-            addr = M.ReadLong(addr + 0x8);
+            long num = address;
+            address = Memory.ReadLong(address + 0x8);
             var hashSet = new HashSet<long>();
             var queue = new Queue<long>();
-            queue.Enqueue(addr);
+            queue.Enqueue(address);
             int loopcount = 0;
             while (queue.Count > 0 && loopcount < 10000)
             {
                 loopcount++;
-                long nextAddr = queue.Dequeue();
-                if (hashSet.Contains(nextAddr))
-                    continue;
-
-                hashSet.Add(nextAddr);
-                if (nextAddr != num && nextAddr != 0)
+                long nextAddress = queue.Dequeue();
+                if (hashSet.Contains(nextAddress))
                 {
-                    int EntityID = M.ReadInt(nextAddr + 0x28, 0x40);
-                    if (!list.ContainsKey(EntityID))
-                    {
-                        long address = M.ReadLong(nextAddr + 0x28);
-                        var entity = GetObject<Entity>(address);
-                        list.Add(EntityID, entity);
-                    }
-                    queue.Enqueue(M.ReadLong(nextAddr));
-                    queue.Enqueue(M.ReadLong(nextAddr + 0x10));
+                    continue;
                 }
+
+                hashSet.Add(nextAddress);
+                if (nextAddress == num || nextAddress == 0)
+                {
+                    continue;
+                }
+
+                int entityId = Memory.ReadInt(nextAddress + 0x28, 0x40);
+                if (!list.ContainsKey(entityId))
+                {
+                    long address2 = Memory.ReadLong(nextAddress + 0x28);
+                    var entity = GetObject<Entity>(address2);
+                    list.Add(entityId, entity);
+                }
+
+                queue.Enqueue(Memory.ReadLong(nextAddress));
+                queue.Enqueue(Memory.ReadLong(nextAddress + 0x10));
             }
         }
     }

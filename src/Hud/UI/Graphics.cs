@@ -1,17 +1,18 @@
-﻿using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.UI.Renderers;
+﻿using System;
+using System.Threading;
+using System.Windows.Forms;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.UI.Renderers;
 using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
-using System;
-using System.Threading;
-using System.Windows.Forms;
 
-namespace PoeHUD.Hud.UI
+namespace PoEHUD.HUD.UI
 {
     public sealed class Graphics : IDisposable
     {
-        private const CreateFlags CREATE_FLAGS = CreateFlags.Multithreaded | CreateFlags.HardwareVertexProcessing;
+        private const CreateFlags CreateFlags = SharpDX.Direct3D9.CreateFlags.Multithreaded | SharpDX.Direct3D9.CreateFlags.HardwareVertexProcessing;
+        private readonly ManualResetEventSlim renderLocker = new ManualResetEventSlim(false);
         private readonly DeviceEx device;
         private readonly Direct3DEx direct3D;
         private readonly FontRenderer fontRenderer;
@@ -20,7 +21,6 @@ namespace PoeHUD.Hud.UI
         private PresentParameters presentParameters;
         private bool resized;
         private bool running = true;
-        private readonly ManualResetEventSlim renderLocker = new ManualResetEventSlim(false);
 
         public Graphics(RenderForm form, int width, int height)
         {
@@ -46,13 +46,13 @@ namespace PoeHUD.Hud.UI
                 PresentFlags = PresentFlags.LockableBackBuffer
             };
             direct3D = new Direct3DEx();
-            device = new DeviceEx(direct3D, 0, DeviceType.Hardware, form.Handle, CREATE_FLAGS, presentParameters);
+            device = new DeviceEx(direct3D, 0, DeviceType.Hardware, form.Handle, CreateFlags, presentParameters);
             fontRenderer = new FontRenderer(device);
             textureRenderer = new TextureRenderer(device);
             renderLocker.Reset();
         }
 
-        public event Action Render;
+        public event Action OnRender;
 
         public void RenderLoop()
         {
@@ -64,6 +64,7 @@ namespace PoeHUD.Hud.UI
                     {
                         reset();
                     }
+
                     device.Clear(ClearFlags.Target, Color.Transparent, 0, 0);
                     device.SetRenderState(RenderState.AlphaBlendEnable, true);
                     device.SetRenderState(RenderState.CullMode, Cull.Clockwise);
@@ -72,7 +73,7 @@ namespace PoeHUD.Hud.UI
                     textureRenderer.Begin();
                     try
                     {
-                        Render.SafeInvoke();
+                        OnRender.SafeInvoke();
                     }
                     finally
                     {
@@ -82,33 +83,29 @@ namespace PoeHUD.Hud.UI
                         device.Present();
                     }
                 }
-                catch (SharpDXException) { }
+                catch (SharpDXException)
+                {
+                    // ignore
+                }
             }
+
             renderLocker.Set();
         }
 
         public void Dispose()
         {
-            if (!device.IsDisposed)
+            if (device.IsDisposed)
             {
-                running = false;
-                renderLocker.Wait();
-                renderLocker.Dispose();
-                device.Dispose();
-                direct3D.Dispose();
-                fontRenderer.Dispose();
-                textureRenderer.Dispose();
+                return;
             }
-        }
 
-        private void Resize(int width, int height)
-        {
-            if (width > 0 && height > 0)
-            {
-                presentParameters.BackBufferWidth = width;
-                presentParameters.BackBufferHeight = height;
-                resized = true;
-            }
+            running = false;
+            renderLocker.Wait();
+            renderLocker.Dispose();
+            device.Dispose();
+            direct3D.Dispose();
+            fontRenderer.Dispose();
+            textureRenderer.Dispose();
         }
 
         public Size2 DrawText(string text, int height, Vector2 position, Color color, FontDrawFlags align = FontDrawFlags.Left)
@@ -214,6 +211,18 @@ namespace PoeHUD.Hud.UI
                 MessageBox.Show($"Failed to load texture {fileName}: {e.Message}");
                 Environment.Exit(0);
             }
+        }
+
+        private void Resize(int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+            {
+                return;
+            }
+
+            presentParameters.BackBufferWidth = width;
+            presentParameters.BackBufferHeight = height;
+            resized = true;
         }
     }
 }

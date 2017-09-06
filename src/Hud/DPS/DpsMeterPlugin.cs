@@ -1,35 +1,34 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.Framework;
-using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.UI;
-using PoeHUD.Models;
-using PoeHUD.Poe.Components;
-using SharpDX;
-using SharpDX.Direct3D9;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using PoEHUD.Controllers;
+using PoEHUD.Framework;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.UI;
+using PoEHUD.Models;
+using PoEHUD.PoE.Components;
+using SharpDX;
+using SharpDX.Direct3D9;
 
-namespace PoeHUD.Hud.Dps
+namespace PoEHUD.HUD.DPS
 {
-    public class DpsMeterPlugin : SizedPlugin<DpsMeterSettings>
+    public class DPSMeterPlugin : SizedPlugin<DPSMeterSettings>
     {
-        private const double DPS_PERIOD = 0.2;
-        private DateTime lastTime;
+        private const double DPSPeriod = 0.2;
         private readonly Dictionary<long, int> lastMonsters = new Dictionary<long, int>();
+        private DateTime lastTime;
         private double[] damageMemory = new double[10];
         private int damageMemoryIndex;
-        private int maxDps;
+        private int maxDPS;
 
-        public DpsMeterPlugin(GameController gameController, Graphics graphics, DpsMeterSettings settings)
-            : base(gameController, graphics, settings)
+        public DPSMeterPlugin(GameController gameController, Graphics graphics, DPSMeterSettings settings) : base(gameController, graphics, settings)
         {
             lastTime = DateTime.Now;
-            GameController.Area.OnAreaChange += area =>
+            GameController.Area.AreaChanged += area =>
             {
                 lastTime = DateTime.Now;
-                maxDps = 0;
+                maxDPS = 0;
                 damageMemory = new double[10];
                 lastMonsters.Clear();
             };
@@ -40,33 +39,33 @@ namespace PoeHUD.Hud.Dps
             try
             {
                 base.Render();
-                if (!Settings.Enable || WinApi.IsKeyDown(Keys.F10) ||
-                    !Settings.ShowInTown && GameController.Area.CurrentArea.IsTown ||
-                    !Settings.ShowInTown && GameController.Area.CurrentArea.IsHideout)
-                { return; }
+                if (!Settings.Enable || WindowsAPI.IsKeyDown(Keys.F10) || !Settings.ShowInTown && GameController.Area.CurrentArea.IsTown || !Settings.ShowInTown && GameController.Area.CurrentArea.IsHideout)
+                {
+                    return;
+                }
 
                 DateTime nowTime = DateTime.Now;
                 TimeSpan elapsedTime = nowTime - lastTime;
-                if (elapsedTime.TotalSeconds > DPS_PERIOD)
+                if (elapsedTime.TotalSeconds > DPSPeriod)
                 {
                     damageMemoryIndex++;
                     if (damageMemoryIndex >= damageMemory.Length)
                     {
                         damageMemoryIndex = 0;
                     }
-                    damageMemory[damageMemoryIndex] = CalculateDps();
+
+                    damageMemory[damageMemoryIndex] = CalculateDPS();
                     lastTime = nowTime;
                 }
 
                 Vector2 position = StartDrawPointFunc();
                 var dps = (int)damageMemory.Sum();
-                maxDps = Math.Max(dps, maxDps);
+                maxDPS = Math.Max(dps, maxDPS);
 
                 string dpsText = dps + " dps";
-                string peakText = maxDps + " top dps";
-                Size2 dpsSize = Graphics.DrawText(dpsText, Settings.DpsTextSize, position, Settings.DpsFontColor, FontDrawFlags.Right);
-                Size2 peakSize = Graphics.DrawText(peakText, Settings.PeakDpsTextSize, position.Translate(0, dpsSize.Height), Settings.PeakFontColor,
-                    FontDrawFlags.Right);
+                string peakText = maxDPS + " top dps";
+                Size2 dpsSize = Graphics.DrawText(dpsText, Settings.DPSTextSize, position, Settings.DPSFontColor, FontDrawFlags.Right);
+                Size2 peakSize = Graphics.DrawText(peakText, Settings.PeakDPSTextSize, position.Translate(0, dpsSize.Height), Settings.PeakFontColor, FontDrawFlags.Right);
 
                 int width = Math.Max(peakSize.Width, dpsSize.Width);
                 int height = dpsSize.Height + peakSize.Height;
@@ -80,30 +79,33 @@ namespace PoeHUD.Hud.Dps
             }
             catch
             {
-                // do nothing
+                // ignore
             }
         }
 
-        private double CalculateDps()
+        private double CalculateDPS()
         {
             int totalDamage = 0;
             foreach (EntityWrapper monster in GameController.Entities.Where(x => x.HasComponent<Monster>() && x.IsHostile))
             {
                 var life = monster.GetComponent<Life>();
-                int hp = monster.IsAlive ? life.CurHP + life.CurES : 0;
-                if (hp > -1000000 && hp < 10000000)
+                int hp = monster.IsAlive ? life.CurrentHP + life.CurrentES : 0;
+                if (hp <= -1000000 || hp >= 10000000)
                 {
-                    int lastHP;
-                    if (lastMonsters.TryGetValue(monster.Id, out lastHP))
-                    {
-                        if (lastHP != hp)
-                        {
-                            totalDamage += lastHP - hp;
-                        }
-                    }
-                    lastMonsters[monster.Id] = hp;
+                    continue;
                 }
+
+                if (lastMonsters.TryGetValue(monster.Id, out int lastHP))
+                {
+                    if (lastHP != hp)
+                    {
+                        totalDamage += lastHP - hp;
+                    }
+                }
+
+                lastMonsters[monster.Id] = hp;
             }
+
             return totalDamage < 0 ? 0 : totalDamage;
         }
     }

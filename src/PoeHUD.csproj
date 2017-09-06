@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
-    <AssemblyName>PoeHUD</AssemblyName>
+    <AssemblyName>PoEHUD</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -44,7 +44,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>PoeHUD</RootNamespace>
+    <RootNamespace>PoEHUD</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -84,7 +84,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>PoeHUD.Program</StartupObject>
+    <StartupObject>PoEHUD.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DefineConstants>DEBUG</DefineConstants>
@@ -97,8 +97,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>default</LangVersion>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>6</LangVersion>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
     <Optimize>true</Optimize>
     <WarningLevel>0</WarningLevel>
@@ -154,7 +154,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\FsController.cs" />
+    <Compile Include="Controllers\FileSystemController.cs" />
     <Compile Include="Framework\Aero.cs" />
     <Compile Include="Framework\ChooseColor.cs" />
     <Compile Include="Framework\Helpers\ActionHelper.cs" />
@@ -167,209 +167,218 @@
     <Compile Include="Framework\InputHooks\MouseInfo.cs" />
     <Compile Include="Framework\InputHooks\Structures\KeyboardHookStruct.cs" />
     <Compile Include="Framework\InputHooks\MouseHook.cs" />
-    <Compile Include="Framework\InputHooks\Structures\MouseLLHookStruct.cs" />
+    <Compile Include="Framework\InputHooks\Structures\MouseLowLevelHookStruct.cs" />
     <Compile Include="Framework\MemoryControl.cs" />
-    <Compile Include="Framework\WinApi.cs" />
-    <Compile Include="Hud\AdvancedTooltip\AdvancedTooltipPlugin.cs" />
-    <Compile Include="Hud\AdvancedTooltip\AdvancedTooltipSettings.cs" />
-    <Compile Include="Hud\CustomColorDialog.cs" />
-    <Compile Include="Hud\DebugPlugin\DebugPlugin.cs" />
-    <Compile Include="Hud\DebugPlugin\DebugPluginSettings.cs" />
-    <Compile Include="Hud\Dps\DpsMeterSettings.cs" />
-    <Compile Include="Hud\AdvancedTooltip\WeaponDpsSettings.cs" />
-    <Compile Include="Hud\ExternalOverlay.cs">
+    <Compile Include="Framework\WindowsAPI.cs" />
+    <Compile Include="HUD\AdvancedTooltip\AdvancedTooltipPlugin.cs" />
+    <Compile Include="HUD\AdvancedTooltip\AdvancedTooltipSettings.cs" />
+    <Compile Include="HUD\ChestMapIcon.cs" />
+    <Compile Include="HUD\CreatureMapIcon.cs" />
+    <Compile Include="HUD\CustomColorDialog.cs" />
+    <Compile Include="HUD\DebugPlugin\DebugPlugin.cs" />
+    <Compile Include="HUD\DebugPlugin\DebugPluginSettings.cs" />
+    <Compile Include="HUD\DPS\DPSMeterSettings.cs" />
+    <Compile Include="HUD\AdvancedTooltip\WeaponDPSSettings.cs" />
+    <Compile Include="HUD\ExternalOverlay.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Hud\Health\DebuffPanelConfig.cs" />
-    <Compile Include="Hud\Health\HealthBarSettings.cs" />
-    <Compile Include="Hud\Health\UnitSettings.cs" />
-    <Compile Include="Hud\Icons\MapIconsSettings.cs" />
-    <Compile Include="Hud\Interfaces\IPanelChild.cs" />
-    <Compile Include="Hud\Interfaces\IPlugin.cs" />
-    <Compile Include="Hud\Loot\BorderSettings.cs" />
-    <Compile Include="Hud\KillCounter\KillCounterSettings.cs" />
-    <Compile Include="Hud\KillCounter\KillCounterPlugin.cs" />
-    <Compile Include="Hud\Loot\ItemAlertSettings.cs" />
-    <Compile Include="Hud\AdvancedTooltip\ItemLevelSettings.cs" />
-    <Compile Include="Hud\Loot\PoeFilterVisitor.cs" />
-    <Compile Include="Hud\Loot\QualityItemSettings.cs" />
-    <Compile Include="Hud\Loot\QualityItemsSettings.cs" />
-    <Compile Include="Hud\AdvancedTooltip\ItemModsSettings.cs" />
-    <Compile Include="Hud\Menu\ButtonButton.cs" />
-    <Compile Include="Hud\Menu\FileButton.cs" />
-    <Compile Include="Hud\Menu\ColorButton.cs" />
-    <Compile Include="Hud\Menu\HotkeyButton.cs" />
-    <Compile Include="Hud\Menu\ListButton.cs" />
-    <Compile Include="Hud\Menu\MenuSettings.cs" />
-    <Compile Include="Hud\Menu\RootButton.cs" />
-    <Compile Include="Hud\Menu\SimpleMenu.cs" />
-    <Compile Include="Hud\PluginExtension\ExternalPlugin.cs" />
-    <Compile Include="Hud\PluginExtension\FileOperationAPIWrapper.cs" />
-    <Compile Include="Hud\PluginExtension\PluginExtensionPlugin.cs" />
-    <Compile Include="Hud\PluginPanel.cs" />
-    <Compile Include="Hud\PluginWithMapIcons.cs" />
-    <Compile Include="Hud\Settings\ButtonNode.cs" />
-    <Compile Include="Hud\Settings\ColorNode.cs" />
-    <Compile Include="Hud\Settings\Converters\FileNodeConverter.cs" />
-    <Compile Include="Hud\Settings\EmptyNode.cs" />
-    <Compile Include="Hud\Settings\FileNode.cs" />
-    <Compile Include="Hud\Settings\HotkeyNode.cs" />
-    <Compile Include="Hud\Settings\ListNode.cs" />
-    <Compile Include="Hud\SizedPlugin.cs" />
-    <Compile Include="Hud\SizedPluginWithMapIcons.cs" />
+    <Compile Include="HUD\Health\DebuffPanelConfig.cs" />
+    <Compile Include="HUD\Health\HealthBarSettings.cs" />
+    <Compile Include="HUD\Health\UnitSettings.cs" />
+    <Compile Include="HUD\Icons\MapIconsSettings.cs" />
+    <Compile Include="HUD\Interfaces\IPanelChild.cs" />
+    <Compile Include="HUD\Interfaces\IPlugin.cs" />
+    <Compile Include="HUD\Loot\BorderSettings.cs" />
+    <Compile Include="HUD\KillCounter\KillCounterSettings.cs" />
+    <Compile Include="HUD\KillCounter\KillCounterPlugin.cs" />
+    <Compile Include="HUD\Loot\ItemAlertSettings.cs" />
+    <Compile Include="HUD\AdvancedTooltip\ItemLevelSettings.cs" />
+    <Compile Include="HUD\Loot\PoEFilterVisitor.cs" />
+    <Compile Include="HUD\Loot\QualityItemSettings.cs" />
+    <Compile Include="HUD\Loot\QualityItemsSettings.cs" />
+    <Compile Include="HUD\AdvancedTooltip\ItemModsSettings.cs" />
+    <Compile Include="HUD\Menu\ButtonButton.cs" />
+    <Compile Include="HUD\Menu\FileButton.cs" />
+    <Compile Include="HUD\Menu\ColorButton.cs" />
+    <Compile Include="HUD\Menu\HotkeyButton.cs" />
+    <Compile Include="HUD\Menu\ListButton.cs" />
+    <Compile Include="HUD\Menu\MenuSettings.cs" />
+    <Compile Include="HUD\Menu\RootButton.cs" />
+    <Compile Include="HUD\Menu\SimpleMenu.cs" />
+    <Compile Include="HUD\PluginExtension\ExternalPlugin.cs" />
+    <Compile Include="HUD\PluginExtension\FileOperationAPIWrapper.cs" />
+    <Compile Include="HUD\PluginExtension\PluginExtensionPlugin.cs" />
+    <Compile Include="HUD\PluginPanel.cs" />
+    <Compile Include="HUD\PluginWithMapIcons.cs" />
+    <Compile Include="HUD\Settings\ButtonNode.cs" />
+    <Compile Include="HUD\Settings\ColorNode.cs" />
+    <Compile Include="HUD\Settings\Converters\FileNodeConverter.cs" />
+    <Compile Include="HUD\Settings\EmptyNode.cs" />
+    <Compile Include="HUD\Settings\FileNode.cs" />
+    <Compile Include="HUD\Settings\HotkeyNode.cs" />
+    <Compile Include="HUD\Settings\ListNode.cs" />
+    <Compile Include="HUD\SizedPlugin.cs" />
+    <Compile Include="HUD\SizedPluginWithMapIcons.cs" />
     <Compile Include="Models\BaseItemType.cs" />
     <Compile Include="Models\ConfigLineBase.cs" />
     <Compile Include="Models\Enums\DiagnosticInfoType.cs" />
     <Compile Include="Models\Enums\InventoryType.cs" />
     <Compile Include="Models\ItemClass.cs" />
+    <Compile Include="Models\ItemClasses.cs" />
     <Compile Include="Models\MonsterConfigLine.cs" />
-    <Compile Include="Hud\Trackers\MonsterTrackerSettings.cs" />
-    <Compile Include="Hud\Trackers\PoiTrackerSettings.cs" />
-    <Compile Include="Hud\Plugin.cs" />
-    <Compile Include="Hud\Preload\PreloadAlertSettings.cs" />
-    <Compile Include="Hud\Settings\Converters\ColorNodeConverter.cs" />
-    <Compile Include="Hud\Settings\Converters\ToggleNodeConverter.cs" />
-    <Compile Include="Hud\Settings\RangeNode.cs" />
-    <Compile Include="Hud\Settings\SettingsBase.cs" />
-    <Compile Include="Hud\Settings\SettingsHub.cs" />
-    <Compile Include="Hud\Settings\SortContractResolver.cs" />
-    <Compile Include="Hud\Settings\ToggleNode.cs" />
-    <Compile Include="Hud\UI\Graphics.cs" />
-    <Compile Include="Hud\UI\Renderers\FontRenderer.cs" />
-    <Compile Include="Hud\UI\Renderers\TextureRenderer.cs" />
-    <Compile Include="Hud\UI\Vertexes\ColoredVertex.cs" />
-    <Compile Include="Hud\UI\Vertexes\TexturedVertex.cs" />
-    <Compile Include="Hud\XpRate\XpRateSettings.cs" />
+    <Compile Include="HUD\Trackers\MonsterTrackerSettings.cs" />
+    <Compile Include="HUD\Trackers\PoITrackerSettings.cs" />
+    <Compile Include="HUD\Plugin.cs" />
+    <Compile Include="HUD\Preload\PreloadAlertSettings.cs" />
+    <Compile Include="HUD\Settings\Converters\ColorNodeConverter.cs" />
+    <Compile Include="HUD\Settings\Converters\ToggleNodeConverter.cs" />
+    <Compile Include="HUD\Settings\RangeNode.cs" />
+    <Compile Include="HUD\Settings\SettingsBase.cs" />
+    <Compile Include="HUD\Settings\SettingsHUB.cs" />
+    <Compile Include="HUD\Settings\SortContractResolver.cs" />
+    <Compile Include="HUD\Settings\ToggleNode.cs" />
+    <Compile Include="HUD\UI\Graphics.cs" />
+    <Compile Include="HUD\UI\Renderers\FontRenderer.cs" />
+    <Compile Include="HUD\UI\Renderers\TextureRenderer.cs" />
+    <Compile Include="HUD\UI\Vertexes\ColoredVertex.cs" />
+    <Compile Include="HUD\UI\Vertexes\TexturedVertex.cs" />
+    <Compile Include="HUD\XPRate\XPRateSettings.cs" />
     <Compile Include="Models\Enums\DamageType.cs" />
-    <Compile Include="Hud\XpRate\XpRatePlugin.cs" />
+    <Compile Include="HUD\XPRate\XPRatePlugin.cs" />
     <Compile Include="Models\PreloadConfigLine.cs" />
     <Compile Include="Models\StatTranslator.cs" />
     <Compile Include="Framework\Enums\ProcessAccessFlags.cs" />
     <Compile Include="Models\Enums\InventoryIndex.cs" />
-    <Compile Include="Hud\Health\HealthBar.cs" />
-    <Compile Include="Hud\Health\HealthBarPlugin.cs" />
-    <Compile Include="Hud\Health\CreatureType.cs" />
-    <Compile Include="Hud\Interfaces\IPluginWithMapIcons.cs" />
+    <Compile Include="HUD\Health\HealthBar.cs" />
+    <Compile Include="HUD\Health\HealthBarPlugin.cs" />
+    <Compile Include="HUD\Health\CreatureType.cs" />
+    <Compile Include="HUD\Interfaces\IPluginWithMapIcons.cs" />
     <Compile Include="Models\AreaInstance.cs" />
     <Compile Include="Plugins\BasePlugin.cs" />
     <Compile Include="Plugins\BaseSettingsPlugin.cs" />
     <Compile Include="Plugins\MenuAttribute.cs" />
-    <Compile Include="Poe\Components\AttributeRequirements.cs" />
-    <Compile Include="Poe\Components\Base.cs" />
-    <Compile Include="Poe\Components\Charges.cs" />
-    <Compile Include="Poe\Components\CurrencyInfo.cs" />
-    <Compile Include="Poe\Components\DiesAfterTime.cs" />
-    <Compile Include="Poe\Components\Flask.cs" />
-    <Compile Include="Poe\Components\Inventories.cs" />
-    <Compile Include="Poe\Components\RenderItem.cs" />
-    <Compile Include="Poe\Components\Shrine.cs" />
-    <Compile Include="Poe\Components\Stack.cs" />
-    <Compile Include="Poe\Components\TriggerableBlockage.cs" />
-    <Compile Include="Poe\Elements\InventoryElements\DivinationInventoryItem.cs" />
-    <Compile Include="Poe\Elements\InventoryElements\EssenceInventoryItem.cs" />
-    <Compile Include="Poe\Elements\HPbarElement.cs" />
-    <Compile Include="Poe\Elements\InventoryElements\CurrencyInventoryItem.cs" />
-    <Compile Include="Poe\Elements\InventoryElements\NormalInventoryItem.cs" />
-    <Compile Include="Poe\Elements\ItemOnGroundTooltip.cs" />
-    <Compile Include="Poe\Elements\ItemsOnGroundLabelElement.cs" />
-    <Compile Include="Poe\Elements\StashElement.cs" />
-    <Compile Include="Poe\FileInMemory.cs" />
-    <Compile Include="Poe\FilesInMemory\ItemClasses.cs" />
-    <Compile Include="Poe\FilesInMemory\StatsDat.cs" />
-    <Compile Include="Poe\FilesInMemory\ModsDat.cs" />
+    <Compile Include="PoE\Component.cs" />
+    <Compile Include="PoE\Components\AttributeRequirements.cs" />
+    <Compile Include="PoE\Components\Base.cs" />
+    <Compile Include="PoE\Components\Charges.cs" />
+    <Compile Include="PoE\Components\CurrencyInfo.cs" />
+    <Compile Include="PoE\Components\DiesAfterTime.cs" />
+    <Compile Include="PoE\Components\Flask.cs" />
+    <Compile Include="PoE\Components\Inventories.cs" />
+    <Compile Include="PoE\Components\RenderItem.cs" />
+    <Compile Include="PoE\Components\Shrine.cs" />
+    <Compile Include="PoE\Components\Stack.cs" />
+    <Compile Include="PoE\Components\TriggerableBlockage.cs" />
+    <Compile Include="PoE\Element.cs" />
+    <Compile Include="PoE\Elements\InventoryElements\DivinationInventoryItem.cs" />
+    <Compile Include="PoE\Elements\InventoryElements\EssenceInventoryItem.cs" />
+    <Compile Include="PoE\Elements\HPBarElement.cs" />
+    <Compile Include="PoE\Elements\InventoryElements\CurrencyInventoryItem.cs" />
+    <Compile Include="PoE\Elements\InventoryElements\NormalInventoryItem.cs" />
+    <Compile Include="PoE\Elements\ItemOnGroundTooltip.cs" />
+    <Compile Include="PoE\Elements\ItemsOnGroundLabelElement.cs" />
+    <Compile Include="PoE\Elements\StashElement.cs" />
+    <Compile Include="PoE\Entity.cs" />
+    <Compile Include="PoE\FileInMemory.cs" />
+    <Compile Include="PoE\FilesInMemory\StatsDat.cs" />
+    <Compile Include="PoE\FilesInMemory\ModsDat.cs" />
     <Compile Include="Framework\ColorUtils.cs" />
     <Compile Include="Framework\IntRange.cs" />
-    <Compile Include="Hud\Dps\DpsMeterPlugin.cs" />
-    <Compile Include="Hud\HudSkin.cs" />
-    <Compile Include="Hud\HudTexture.cs" />
-    <Compile Include="Hud\Icons\MinimapPlugin.cs" />
-    <Compile Include="Hud\Loot\AlertDrawStyle.cs" />
-    <Compile Include="Hud\Loot\CraftingBase.cs" />
-    <Compile Include="Hud\Loot\ItemUsefulProperties.cs" />
-    <Compile Include="Hud\AdvancedTooltip\ModValue.cs" />
+    <Compile Include="HUD\DPS\DPSMeterPlugin.cs" />
+    <Compile Include="HUD\HUDSkin.cs" />
+    <Compile Include="HUD\HUDTexture.cs" />
+    <Compile Include="HUD\Icons\MinimapPlugin.cs" />
+    <Compile Include="HUD\Loot\AlertDrawStyle.cs" />
+    <Compile Include="HUD\Loot\CraftingBase.cs" />
+    <Compile Include="HUD\Loot\ItemUsefulProperties.cs" />
+    <Compile Include="HUD\AdvancedTooltip\ModValue.cs" />
     <Compile Include="Framework\GameWindow.cs" />
     <Compile Include="Framework\Memory.cs" />
     <Compile Include="Framework\InputHooks\KeyboardHook.cs" />
-    <Compile Include="Hud\Trackers\PoiTracker.cs" />
-    <Compile Include="Poe\Components\Actor.cs" />
+    <Compile Include="HUD\Trackers\PoITracker.cs" />
+    <Compile Include="PoE\Components\Actor.cs" />
     <Compile Include="Controllers\AreaController.cs" />
-    <Compile Include="Poe\Components\AreaTransition.cs" />
-    <Compile Include="Poe\Components\Armour.cs" />
-    <Compile Include="Poe\FilesInMemory\BaseItemTypes.cs" />
-    <Compile Include="Poe\Components\Chest.cs" />
-    <Compile Include="Poe\Component.cs" />
+    <Compile Include="PoE\Components\AreaTransition.cs" />
+    <Compile Include="PoE\Components\Armour.cs" />
+    <Compile Include="PoE\FilesInMemory\BaseItemTypes.cs" />
+    <Compile Include="PoE\Components\Chest.cs" />
     <Compile Include="Models\EntityWrapper.cs" />
     <Compile Include="Models\EntityListWrapper.cs" />
     <Compile Include="Models\Enums\ItemRarity.cs" />
     <Compile Include="Models\Enums\ItemStatEnum.cs" />
     <Compile Include="Models\ItemStats.cs" />
-    <Compile Include="Models\Enums\ItemType.cs" />
-    <Compile Include="Poe\Components\Life.cs" />
-    <Compile Include="Models\Legacy\LegacyLink.cs" />
-    <Compile Include="Poe\Components\Map.cs" />
-    <Compile Include="Poe\Components\Mods.cs" />
-    <Compile Include="Poe\Components\Monster.cs" />
+    <Compile Include="PoE\Components\Life.cs" />
+    <Compile Include="PoE\Components\Map.cs" />
+    <Compile Include="PoE\Components\Mods.cs" />
+    <Compile Include="PoE\Components\Monster.cs" />
     <Compile Include="Models\Enums\MonsterRarity.cs" />
-    <Compile Include="Poe\Components\NPC.cs" />
-    <Compile Include="Poe\Components\ObjectMagicProperties.cs" />
-    <Compile Include="Poe\FilesInMemory\TagsDat.cs" />
+    <Compile Include="PoE\Components\NPC.cs" />
+    <Compile Include="PoE\Components\ObjectMagicProperties.cs" />
+    <Compile Include="PoE\FilesInMemory\TagsDat.cs" />
     <Compile Include="Models\Interfaces\IEntity.cs" />
-    <Compile Include="Poe\Offsets.cs" />
+    <Compile Include="PoE\Offset.cs" />
     <Compile Include="Controllers\GameController.cs" />
-    <Compile Include="Poe\Components\Player.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\AreaTemplate.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\Buff.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\Camera.cs" />
-    <Compile Include="Poe\Entity.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\DiagnosticElement.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\EntityList.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\TheGame.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\IngameData.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\IngameState.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\IngameUIElements.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\Inventory.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\InventoryList.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\ItemMod.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\ServerData.cs" />
-    <Compile Include="Poe\Element.cs" />
-    <Compile Include="Poe\Elements\InventoryElement.cs" />
-    <Compile Include="Poe\Elements\Map.cs" />
-    <Compile Include="Poe\Elements\HoverItemIcon.cs" />
-    <Compile Include="Poe\Elements\WindowState.cs" />
-    <Compile Include="Poe\Components\Positioned.cs" />
-    <Compile Include="Poe\Components\Quality.cs" />
-    <Compile Include="Poe\RemoteMemoryObject.cs" />
-    <Compile Include="Poe\Components\Render.cs" />
-    <Compile Include="Models\Legacy\LegacySelectionState.cs" />
-    <Compile Include="Poe\Components\SkillGem.cs" />
-    <Compile Include="Models\Enums\LegacySocket.cs" />
-    <Compile Include="Poe\Components\Sockets.cs" />
-    <Compile Include="Models\Legacy\LegacyStat.cs" />
-    <Compile Include="Poe\RemoteMemoryObjects\Legacy\LegacyStats.cs" />
-    <Compile Include="Poe\Components\Targetable.cs" />
-    <Compile Include="Poe\Components\Weapon.cs" />
-    <Compile Include="Poe\Components\WorldItem.cs" />
-    <Compile Include="Hud\Menu\ToggleButton.cs" />
+    <Compile Include="PoE\Components\Player.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\AreaTemplate.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\Buff.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\Camera.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\DiagnosticElement.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\EntityList.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\TheGame.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\IngameData.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\IngameState.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\IngameUIElements.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\Inventory.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\InventoryList.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\ItemMod.cs" />
+    <Compile Include="PoE\RemoteMemoryObjects\ServerData.cs" />
+    <Compile Include="PoE\Elements\InventoryElement.cs" />
+    <Compile Include="PoE\Elements\Map.cs" />
+    <Compile Include="PoE\Elements\HoverItemIcon.cs" />
+    <Compile Include="PoE\Elements\WindowState.cs" />
+    <Compile Include="PoE\Components\Positioned.cs" />
+    <Compile Include="PoE\Components\Quality.cs" />
+    <Compile Include="PoE\RemoteMemoryObject.cs" />
+    <Compile Include="PoE\Components\Render.cs" />
+    <Compile Include="PoE\Components\SkillGem.cs" />
+    <Compile Include="PoE\Components\Sockets.cs" />
+    <Compile Include="PoE\Components\Targetable.cs" />
+    <Compile Include="PoE\Components\Weapon.cs" />
+    <Compile Include="PoE\Components\WorldItem.cs" />
+    <Compile Include="HUD\Menu\ToggleButton.cs" />
     <Compile Include="Models\Constants.cs" />
-    <Compile Include="Hud\Trackers\MonsterTracker.cs" />
-    <Compile Include="Hud\Menu\Picker.cs" />
-    <Compile Include="Hud\Loot\ItemAlertPlugin.cs" />
-    <Compile Include="Hud\Menu\MenuPlugin.cs" />
-    <Compile Include="Hud\Menu\MenuItem.cs" />
-    <Compile Include="Hud\MapIcon.cs" />
-    <Compile Include="Hud\Icons\LargeMapPlugin.cs" />
-    <Compile Include="Hud\MouseEventID.cs" />
-    <Compile Include="Hud\Preload\PreloadAlertPlugin.cs" />
-    <Compile Include="Poe\Elements\EntityLabel.cs" />
+    <Compile Include="HUD\Trackers\MonsterTracker.cs" />
+    <Compile Include="HUD\Menu\Picker.cs" />
+    <Compile Include="HUD\Loot\ItemAlertPlugin.cs" />
+    <Compile Include="HUD\Menu\MenuPlugin.cs" />
+    <Compile Include="HUD\Menu\MenuItem.cs" />
+    <Compile Include="HUD\MapIcon.cs" />
+    <Compile Include="HUD\Icons\LargeMapPlugin.cs" />
+    <Compile Include="HUD\MouseEventId.cs" />
+    <Compile Include="HUD\Preload\PreloadAlertPlugin.cs" />
+    <Compile Include="PoE\Elements\EntityLabel.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Hud\Sounds.cs" />
+    <Compile Include="HUD\Sounds.cs" />
     <Compile Include="Models\Pattern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\Generators.cs" />
+    <Compile Include="Tools\Scrambler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="app.manifest" />
-    <Fakes Include="Fakes\SharpDX.Desktop.fakes" />
+    <None Include="config\debuffPanel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\neversink%27s.filter">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="config\ZiggyLoot.filter">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -390,22 +399,259 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="config\crafting_bases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\currency.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\monster_mod_alerts.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\monster_name_alerts.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\preload_alerts.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="creating_plugins.md" />
     <Content Include="poehud.ico" />
+    <Content Include="sounds\alert.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\attention.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\bomb.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\corrupted.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\danger.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\elemental.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\inception.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\physical.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\treasure.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sounds\volatile.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\cell.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\chest.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\corrupted.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\currency.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\debuff_panel.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\directions.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\done.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_black.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_blue.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_green.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_map.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_orange.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_purple.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_red.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_rgb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_white.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\dot_yellow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\eReflect.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\esbar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\healthbar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\healthbar_bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\healthbar_increment.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\item_icons.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\lightBackground.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu-arrow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu-background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu-colors.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu-picker.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu-slider.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\menu_submenu.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\minimap_default_icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_ally.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_enemy.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_enemy_blue.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_enemy_orange.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_enemy_yellow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_rare_1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_rare_2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_rare_3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\monster_rare_4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-blue-gray.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-blue.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-cyan.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-ghost.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-green.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-orange.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-purple-gray.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-purple.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-red-gray.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-red.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-talisman.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-white.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-yellow-gray.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\ms-yellow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\openFile.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\poehud.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\pReflect.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\preload-end.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\preload-start.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\strongbox.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\tooltip.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\treasure.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\volatile.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="textures\wealth.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="PoeFilterParser\PoeFilterParser.csproj">
       <Project>{8f5d7d56-7a81-433a-b358-ab297a136183}</Project>
       <Name>PoeFilterParser</Name>
     </ProjectReference>
-    <ProjectReference Include="Tools\Tools.fsproj">
-      <Project>{5f2ae016-51d1-42c4-95cd-4e12118e3a6e}</Project>
-      <Name>Tools</Name>
-      <Private>True</Private>
+    <ProjectReference Include="PoeFilterParser\PoeFilterParser.csproj">
+      <Project>{8f5d7d56-7a81-433a-b358-ab297a136183}</Project>
+      <Name>PoeFilterParser</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>mkdir  $(ProjectDir)$(OutDir)\plugins
+copy /y $(ProjectDir)\creating_plugins.md  $(ProjectDir)$(OutDir)\plugins\creating_plugins.md</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -1,19 +1,19 @@
-using PoeHUD.Models.Enums;
-using SharpDX;
 using System.Collections.Generic;
+using PoEHUD.Models.Enums;
+using SharpDX;
 
-namespace PoeHUD.Hud.Loot
+namespace PoEHUD.HUD.Loot
 {
     public sealed class AlertDrawStyle
     {
         public static readonly Color DefaultBackgroundColor = new ColorBGRA(0, 0, 0, 180);
 
-        private static readonly Dictionary<ItemRarity, Color> colors = new Dictionary<ItemRarity, Color>
+        private static readonly Dictionary<ItemRarity, Color> Colors = new Dictionary<ItemRarity, Color>
         {
             { ItemRarity.Normal, Color.White },
-            { ItemRarity.Magic, HudSkin.MagicColor },
-            { ItemRarity.Rare, HudSkin.RareColor },
-            { ItemRarity.Unique, HudSkin.UniqueColor }
+            { ItemRarity.Magic, HUDSkin.MagicColor },
+            { ItemRarity.Rare, HUDSkin.RareColor },
+            { ItemRarity.Unique, HUDSkin.UniqueColor }
         };
 
         public AlertDrawStyle(object colorRef, int borderWidth, string text, int iconIndex)
@@ -30,14 +30,9 @@ namespace PoeHUD.Hud.Loot
             {
                 TextColor = GetTextColorByRarity((ItemRarity)colorRef);
             }
+
             BorderColor = TextColor;
             BackgroundColor = DefaultBackgroundColor;
-        }
-
-        public static Color GetTextColorByRarity(ItemRarity itemRarity)
-        {
-            Color tempColor;
-            return colors.TryGetValue(itemRarity, out tempColor) ? tempColor : Color.White;
         }
 
         public AlertDrawStyle(string text, Color textColor, int borderWidth, Color borderColor, Color backgroundColor, int iconIndex)
@@ -56,5 +51,10 @@ namespace PoeHUD.Hud.Loot
         public Color BackgroundColor { get; private set; }
         public string Text { get; private set; }
         public int IconIndex { get; private set; }
+
+        public static Color GetTextColorByRarity(ItemRarity itemRarity)
+        {
+            return Colors.TryGetValue(itemRarity, out Color tempColor) ? tempColor : Color.White;
+        }
     }
 }

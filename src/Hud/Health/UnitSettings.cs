@@ -1,6 +1,6 @@
-﻿using PoeHUD.Hud.Settings;
+﻿using PoEHUD.HUD.Settings;
 
-namespace PoeHUD.Hud.Health
+namespace PoEHUD.HUD.Health
 {
     public class UnitSettings : SettingsBase
     {
@@ -25,8 +25,7 @@ namespace PoeHUD.Hud.Health
             FloatingCombatStackSize = new RangeNode<int>(1, 1, 10);
         }
 
-        public UnitSettings(uint color, uint outline, uint percentTextColor, bool showText)
-          : this(color, outline)
+        public UnitSettings(uint color, uint outline, uint percentTextColor, bool showText) : this(color, outline)
         {
             PercentTextColor = percentTextColor;
             ShowPercents = showText;

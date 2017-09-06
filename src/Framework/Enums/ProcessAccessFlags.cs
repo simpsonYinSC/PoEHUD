@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PoeHUD.Framework.Enums
+namespace PoEHUD.Framework.Enums
 {
     [Flags]
     public enum ProcessAccessFlags : uint

@@ -1,15 +1,24 @@
-﻿using PoeHUD.Framework.Enums;
-using PoeHUD.Framework.InputHooks;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using PoEHUD.Framework.Enums;
+using PoEHUD.Framework.InputHooks;
 
-namespace PoeHUD.Framework
+namespace PoEHUD.Framework
 {
-    public static class WinApi
+    public static class WindowsAPI
     {
+        #region Constants
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_LAYERED = 0x80000;
+        private const int WS_EX_TRANSPARENT = 0x20;
+        private const int LWA_ALPHA = 0x2;
+
+        #endregion
+
         #region Methods
 
         public static void EnableTransparent(IntPtr handle, Rectangle size)
@@ -23,10 +32,8 @@ namespace PoeHUD.Framework
 
         public static Rectangle GetClientRectangle(IntPtr handle)
         {
-            Rect rect;
-            Point point;
-            GetClientRect(handle, out rect);
-            ClientToScreen(handle, out point);
+            GetClientRect(handle, out Rect rect);
+            ClientToScreen(handle, out Point point);
             return rect.ToRectangle(point);
         }
 
@@ -47,23 +54,10 @@ namespace PoeHUD.Framework
 
         public static bool ReadProcessMemory(IntPtr handle, IntPtr baseAddress, byte[] buffer)
         {
-            IntPtr bytesRead;
-            return ReadProcessMemory(handle, baseAddress, buffer, buffer.Length, out bytesRead);
+            return ReadProcessMemory(handle, baseAddress, buffer, buffer.Length, out IntPtr bytesRead);
         }
 
-        #endregion Methods
-
-        #region Constants
-
-        private const int GWL_EXSTYLE = -20;
-
-        private const int WS_EX_LAYERED = 0x80000;
-
-        private const int WS_EX_TRANSPARENT = 0x20;
-
-        private const int LWA_ALPHA = 0x2;
-
-        #endregion Constants
+        #endregion
 
         #region Imports
 
@@ -99,6 +93,9 @@ namespace PoeHUD.Framework
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         public static extern int UnhookWindowsHookEx(int idHook);
 
+        [DllImport("winmm.dll")]
+        public static extern int waveOutSetVolume(IntPtr hwo, uint dwVolume);
+
         [DllImport("user32.dll")]
         private static extern bool ClientToScreen(IntPtr hWnd, out Point lpPoint);
 
@@ -129,10 +126,7 @@ namespace PoeHUD.Framework
         [DllImport("user32.dll", SetLastError = true)]
         private static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
-        [DllImport("winmm.dll")]
-        public static extern int waveOutSetVolume(IntPtr hwo, uint dwVolume);
-
-        #endregion Imports
+        #endregion
 
         #region Structures
 
@@ -165,6 +159,6 @@ namespace PoeHUD.Framework
             }
         }
 
-        #endregion Structures
+        #endregion
     }
 }

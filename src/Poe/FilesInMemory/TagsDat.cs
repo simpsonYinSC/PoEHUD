@@ -1,27 +1,27 @@
-using PoeHUD.Framework;
 using System;
 using System.Collections.Generic;
+using PoEHUD.Framework;
 
-namespace PoeHUD.Poe.FilesInMemory
+namespace PoEHUD.PoE.FilesInMemory
 {
     public class TagsDat : FileInMemory
     {
-        public Dictionary<string, TagRecord> records =
-            new Dictionary<string, TagRecord>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, TagRecord> Records = new Dictionary<string, TagRecord>(StringComparer.OrdinalIgnoreCase);
 
-        public TagsDat(Memory m, long address)
-            : base(m, address)
+        public TagsDat(Memory memory, long address) : base(memory, address)
         {
-            loadItems();
+            LoadItems();
         }
 
-        private void loadItems()
+        private void LoadItems()
         {
-            foreach (long addr in RecordAddresses())
+            foreach (long address in RecordAddresses())
             {
-                var r = new TagRecord(M, addr);
-                if (!records.ContainsKey(r.Key))
-                    records.Add(r.Key, r);
+                var r = new TagRecord(Memory, address);
+                if (!Records.ContainsKey(r.Key))
+                {
+                    Records.Add(r.Key, r);
+                }
             }
         }
 
@@ -29,12 +29,12 @@ namespace PoeHUD.Poe.FilesInMemory
         {
             public readonly string Key;
             public int Hash;
-            // more fields can be added (see in visualGGPK)
+            //// more fields can be added (see in visualGGPK)
 
-            public TagRecord(Memory m, long addr)
+            public TagRecord(Memory memory, long address)
             {
-                Key = m.ReadStringU(m.ReadLong(addr + 0), 255);
-                Hash = m.ReadInt(addr + 0x8);
+                Key = memory.ReadStringU(memory.ReadLong(address + 0), 255);
+                Hash = memory.ReadInt(address + 0x8);
             }
         }
     }

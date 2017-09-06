@@ -1,24 +1,24 @@
-using PoeHUD.Controllers;
-using PoeHUD.Models.Interfaces;
-using PoeHUD.Poe;
-using PoeHUD.Poe.Components;
 using System.Collections.Generic;
 using System.Linq;
+using PoEHUD.Controllers;
+using PoEHUD.Models.Interfaces;
+using PoEHUD.PoE;
+using PoEHUD.PoE.Components;
 using Vector3 = SharpDX.Vector3;
 
-namespace PoeHUD.Models
+namespace PoEHUD.Models
 {
     public class EntityWrapper : IEntity
     {
+        public bool IsInList = true;
         private readonly long cachedId;
         private readonly Dictionary<string, long> components;
         private readonly GameController gameController;
         private readonly Entity internalEntity;
-        public bool IsInList = true;
 
-        public EntityWrapper(GameController Poe, Entity entity)
+        public EntityWrapper(GameController poE, Entity entity)
         {
-            gameController = Poe;
+            gameController = poE;
             internalEntity = entity;
             components = internalEntity.GetComponents();
             Path = internalEntity.Path;
@@ -26,7 +26,7 @@ namespace PoeHUD.Models
             LongId = internalEntity.Id;
         }
 
-        public EntityWrapper(GameController Poe, long address) : this(Poe, Poe.Game.GetObject<Entity>(address))
+        public EntityWrapper(GameController poE, long address) : this(poE, poE.Game.GetObject<Entity>(address))
         {
         }
 
@@ -38,7 +38,7 @@ namespace PoeHUD.Models
         public long Id => cachedId;
         public bool IsHostile => internalEntity.IsHostile;
         public long LongId { get; }
-        public bool IsAlive => GetComponent<Life>().CurHP > 0;
+        public bool IsAlive => GetComponent<Life>().CurrentHP > 0;
 
         public Vector3 Pos
         {
@@ -49,7 +49,7 @@ namespace PoeHUD.Models
             }
         }
 
-        public List<EntityWrapper> Minions
+        public IEnumerable<EntityWrapper> Minions
         {
             get
             {
@@ -70,13 +70,9 @@ namespace PoeHUD.Models
 
         public List<string> PrintComponents()
         {
-            List<string> result = new List<string>();
-            result.Add(internalEntity.Path + " " + internalEntity.Address.ToString("X"));
+            List<string> result = new List<string> { internalEntity.Path + " " + internalEntity.Address.ToString("X") };
+            result.AddRange(components.Select(current => current.Key + " " + current.Value.ToString("X")));
 
-            foreach (var current in components)
-            {
-                result.Add(current.Key + " " + current.Value.ToString("X"));
-            }
             return result;
         }
 

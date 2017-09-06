@@ -1,19 +1,19 @@
-using PoeHUD.Models;
-using PoeHUD.Models.Enums;
-using PoeHUD.Poe.Components;
 using System.Collections.Generic;
 using System.Diagnostics;
+using PoEHUD.Models;
+using PoEHUD.Models.Enums;
+using PoEHUD.PoE.Components;
 
-namespace PoeHUD.Hud.Health
+namespace PoEHUD.HUD.Health
 {
     public class HealthBar
     {
+        private const int DPSCheckTime = 1000;
+        private const int DPSFastCheckTime = 200;
+        private const int DPSPopTime = 2000;
+        private readonly Stopwatch pdsStopwatch = Stopwatch.StartNew();
         private readonly bool isHostile;
-        private int lastHp;
-        private readonly Stopwatch dpsStopwatch = Stopwatch.StartNew();
-        private const int DPS_CHECK_TIME = 1000;
-        private const int DPS_FAST_CHECK_TIME = 200;
-        private const int DPS_POP_TIME = 2000;
+        private int lastHP;
 
         public HealthBar(EntityWrapper entity, HealthBarSettings settings)
         {
@@ -22,6 +22,7 @@ namespace PoeHUD.Hud.Health
             {
                 return;
             }
+
             if (entity.HasComponent<Player>())
             {
                 Type = CreatureType.Player;
@@ -40,17 +41,14 @@ namespace PoeHUD.Hud.Health
                             Type = CreatureType.Normal;
                             Settings = settings.NormalEnemy;
                             break;
-
                         case MonsterRarity.Magic:
                             Type = CreatureType.Magic;
                             Settings = settings.MagicEnemy;
                             break;
-
                         case MonsterRarity.Rare:
                             Settings = settings.RareEnemy;
                             Type = CreatureType.Rare;
                             break;
-
                         case MonsterRarity.Unique:
                             Settings = settings.UniqueEnemy;
                             Type = CreatureType.Unique;
@@ -63,8 +61,9 @@ namespace PoeHUD.Hud.Health
                     Settings = settings.Minions;
                 }
             }
+
             Life = Entity.GetComponent<Life>();
-            lastHp = GetFullHp();
+            lastHP = GetFullHP();
         }
 
         public Life Life { get; }
@@ -73,47 +72,55 @@ namespace PoeHUD.Hud.Health
         public UnitSettings Settings { get; }
         public CreatureType Type { get; private set; }
 
+        public LinkedList<int> DPSQueue { get; } = new LinkedList<int>();
+
         public bool IsShow(bool showEnemy)
         {
             return !isHostile ? Settings.Enable.Value : Settings.Enable && showEnemy && isHostile;
         }
 
-        public LinkedList<int> DpsQueue { get; } = new LinkedList<int>();
-
-        public void DpsRefresh()
+        public void DPSRefresh()
         {
-            var chechTime = DpsQueue.Count > 0 ? DPS_CHECK_TIME : DPS_FAST_CHECK_TIME;
-            if (dpsStopwatch.ElapsedMilliseconds >= chechTime)
+            int chechTime = DPSQueue.Count > 0 ? DPSCheckTime : DPSFastCheckTime;
+            if (pdsStopwatch.ElapsedMilliseconds < chechTime)
             {
-                var hp = GetFullHp();
-                if (hp > -1000000 && hp < 10000000 && lastHp != hp)
-                {
-                    DpsQueue.AddFirst(-(lastHp - hp));
-                    if (DpsQueue.Count > Settings.FloatingCombatStackSize)
-                    {
-                        DpsQueue.RemoveLast();
-                        dpsStopwatch.Restart();
-                    }
-                    lastHp = hp;
-                }
+                return;
             }
+
+            int hp = GetFullHP();
+            if (hp <= -1000000 || hp >= 10000000 || lastHP == hp)
+            {
+                return;
+            }
+
+            DPSQueue.AddFirst(-(lastHP - hp));
+            if (DPSQueue.Count > Settings.FloatingCombatStackSize)
+            {
+                DPSQueue.RemoveLast();
+                pdsStopwatch.Restart();
+            }
+
+            lastHP = hp;
         }
 
-        public void DpsDequeue()
+        public void DPSDequeue()
         {
-            if (dpsStopwatch.ElapsedMilliseconds >= DPS_POP_TIME)
+            if (pdsStopwatch.ElapsedMilliseconds < DPSPopTime)
             {
-                if (DpsQueue.Count > 0)
-                {
-                    DpsQueue.RemoveLast();
-                }
-                dpsStopwatch.Restart();
+                return;
             }
+
+            if (DPSQueue.Count > 0)
+            {
+                DPSQueue.RemoveLast();
+            }
+
+            pdsStopwatch.Restart();
         }
 
-        private int GetFullHp()
+        private int GetFullHP()
         {
-            return Life.CurHP + Life.CurES;
+            return Life.CurrentHP + Life.CurrentES;
         }
     }
 }

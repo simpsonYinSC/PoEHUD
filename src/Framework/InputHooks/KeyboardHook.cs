@@ -1,11 +1,11 @@
-using PoeHUD.Framework.Helpers;
-using PoeHUD.Framework.InputHooks.Structures;
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.Framework.InputHooks.Structures;
 
-namespace PoeHUD.Framework.InputHooks
+namespace PoEHUD.Framework.InputHooks
 {
     public static class KeyboardHook
     {
@@ -18,6 +18,41 @@ namespace PoeHUD.Framework.InputHooks
         private static int handle;
         private static bool control, alt, shift;
 
+        #region Keyboard Events
+
+        public static event Action<KeyInfo> OnKeyUp
+        {
+            add
+            {
+                Subscribe();
+                KeyUp += value;
+            }
+            remove
+            {
+                KeyUp -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        public static event Action<KeyInfo> OnKeyDown
+        {
+            add
+            {
+                Subscribe();
+                KeyDown += value;
+            }
+            remove
+            {
+                KeyDown -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        private static event Action<KeyInfo> KeyUp;
+        private static event Action<KeyInfo> KeyDown;
+
+        #endregion
+        
         private static KeyInfo GetKeys(Keys keyData, bool specialValue)
         {
             switch (keyData)
@@ -43,97 +78,71 @@ namespace PoeHUD.Framework.InputHooks
 
         private static int KeyboardHookProc(int nCode, Int32 wParam, IntPtr lParam)
         {
-            if (nCode >= 0)
+            if (nCode < 0)
             {
-                var keyboardHookStruct = (KeyboardHookStruct)Marshal.PtrToStructure(lParam, typeof(KeyboardHookStruct));
-
-                KeyInfo keyInfo = null;
-                if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN)
-                {
-                    var keyData = (Keys)keyboardHookStruct.VirtualKeyCode;
-                    keyInfo = GetKeys(keyData, true);
-                    keyDown.SafeInvoke(keyInfo);
-                }
-
-                if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP)
-                {
-                    var keyData = (Keys)keyboardHookStruct.VirtualKeyCode;
-                    keyInfo = GetKeys(keyData, false);
-                    keyUp.SafeInvoke(keyInfo);
-                }
-
-                if (keyInfo != null && keyInfo.Handled)
-                {
-                    return -1;
-                }
+                return WindowsAPI.CallNextHookEx(handle, nCode, wParam, lParam);
             }
 
-            return WinApi.CallNextHookEx(handle, nCode, wParam, lParam);
+            var keyboardHookStruct = (KeyboardHookStruct)Marshal.PtrToStructure(lParam, typeof(KeyboardHookStruct));
+
+            KeyInfo keyInfo = null;
+            if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN)
+            {
+                var keyData = (Keys)keyboardHookStruct.VirtualKeyCode;
+                keyInfo = GetKeys(keyData, true);
+                KeyDown.SafeInvoke(keyInfo);
+            }
+
+            if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP)
+            {
+                var keyData = (Keys)keyboardHookStruct.VirtualKeyCode;
+                keyInfo = GetKeys(keyData, false);
+                KeyUp.SafeInvoke(keyInfo);
+            }
+
+            if (keyInfo != null && keyInfo.Handled)
+            {
+                return -1;
+            }
+
+            return WindowsAPI.CallNextHookEx(handle, nCode, wParam, lParam);
         }
 
         private static void Subscribe()
         {
-            if (handle == 0)
+            if (handle != 0)
             {
-                hookProc = KeyboardHookProc;
-                handle = WinApi.SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, IntPtr.Zero, 0);
-                if (handle == 0)
-                {
-                    int errorCode = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(errorCode);
-                }
+                return;
             }
+
+            hookProc = KeyboardHookProc;
+            handle = WindowsAPI.SetWindowsHookEx(WH_KEYBOARD_LL, hookProc, IntPtr.Zero, 0);
+            if (handle != 0)
+            {
+                return;
+            }
+
+            int errorCode = Marshal.GetLastWin32Error();
+            throw new Win32Exception(errorCode);
         }
 
         private static void TryUnsubscribe()
         {
-            if (handle != 0 && keyDown == null && keyUp == null)
+            if (handle == 0 || KeyDown != null || KeyUp != null)
             {
-                int result = WinApi.UnhookWindowsHookEx(handle);
-                handle = 0;
-                hookProc = null;
-                if (result == 0)
-                {
-                    int errorCode = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(errorCode);
-                }
+                return;
             }
+
+            int result = WindowsAPI.UnhookWindowsHookEx(handle);
+            handle = 0;
+            hookProc = null;
+            if (result != 0)
+            {
+                return;
+            }
+
+            int errorCode = Marshal.GetLastWin32Error();
+            throw new Win32Exception(errorCode);
         }
-
-        #region Keyboard events
-
-        private static event Action<KeyInfo> keyUp;
-
-        public static event Action<KeyInfo> KeyUp
-        {
-            add
-            {
-                Subscribe();
-                keyUp += value;
-            }
-            remove
-            {
-                keyUp -= value;
-                TryUnsubscribe();
-            }
-        }
-
-        private static event Action<KeyInfo> keyDown;
-
-        public static event Action<KeyInfo> KeyDown
-        {
-            add
-            {
-                Subscribe();
-                keyDown += value;
-            }
-            remove
-            {
-                keyDown -= value;
-                TryUnsubscribe();
-            }
-        }
-
-        #endregion Keyboard events
     }
 }

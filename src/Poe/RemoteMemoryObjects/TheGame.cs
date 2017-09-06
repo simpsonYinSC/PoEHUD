@@ -1,16 +1,17 @@
-using PoeHUD.Framework;
+using PoEHUD.Framework;
 
-namespace PoeHUD.Poe.RemoteMemoryObjects
+namespace PoEHUD.PoE.RemoteMemoryObjects
 {
     public class TheGame : RemoteMemoryObject
     {
-        public TheGame(Memory m)
+        public TheGame(Memory memory)
         {
-            M = m;
-            Address = m.ReadLong(Offsets.Base + m.AddressOfProcess, 0x8, 0xf8);//0xC40
+            Memory = memory;
+            Address = memory.ReadLong(Offset.Base + memory.AddressOfProcess, 0x8, 0xf8); // 0xC40
             Game = this;
         }
+
         public IngameState IngameState => ReadObject<IngameState>(Address + 0x38);
-        public int AreaChangeCount => M.ReadInt(M.AddressOfProcess + Offsets.AreaChangeCount);
+        public int AreaChangeCount => Memory.ReadInt(Memory.AddressOfProcess + Offset.AreaChangeCount);
     }
 }

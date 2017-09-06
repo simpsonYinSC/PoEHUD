@@ -1,4 +1,4 @@
-﻿namespace PoeHUD.Hud.Settings
+﻿namespace PoEHUD.HUD.Settings
 {
     public abstract class SettingsBase
     {

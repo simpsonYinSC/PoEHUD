@@ -1,11 +1,20 @@
-using PoeHUD.Framework;
 using System;
 using System.Collections.Generic;
+using PoEHUD.Framework;
 
-namespace PoeHUD.Poe.FilesInMemory
+namespace PoEHUD.PoE.FilesInMemory
 {
     public class ModsDat : FileInMemory
     {
+        public Dictionary<string, ModRecord> Records = new Dictionary<string, ModRecord>(StringComparer.OrdinalIgnoreCase);
+
+        public Dictionary<Tuple<string, ModType>, List<ModRecord>> RecordsByTier = new Dictionary<Tuple<string, ModType>, List<ModRecord>>();
+
+        public ModsDat(Memory memory, long address, StatsDat statsDat, TagsDat tagsDat) : base(memory, address)
+        {
+            LoadItems(statsDat, tagsDat);
+        }
+
         public enum ModType
         {
             // Details: http://pathofexile.gamepedia.com/Modifiers#Mod_Generation_Type
@@ -30,9 +39,9 @@ namespace PoeHUD.Poe.FilesInMemory
             Monster = 3,
             Chest = 4,
             Area = 5,
-            unknown1 = 6,
-            unknown2 = 7,
-            unknown3 = 8,
+            Unknown1 = 6,
+            Unknown2 = 7,
+            Unknown3 = 8,
             Stance = 9,
             Master = 10,
             Jewel = 11,
@@ -40,38 +49,34 @@ namespace PoeHUD.Poe.FilesInMemory
             LeagueStone = 13
         }
 
-        public Dictionary<string, ModRecord> records =
-            new Dictionary<string, ModRecord>(StringComparer.OrdinalIgnoreCase);
-
-        public Dictionary<Tuple<string, ModType>, List<ModRecord>> recordsByTier =
-            new Dictionary<Tuple<string, ModType>, List<ModRecord>>();
-
-        public ModsDat(Memory m, long address, StatsDat sDat, TagsDat tagsDat) : base(m, address)
+        private void LoadItems(StatsDat statsDat, TagsDat tagsDat)
         {
-            loadItems(sDat, tagsDat);
-        }
-
-        private void loadItems(StatsDat sDat, TagsDat tagsDat)
-        {
-            foreach (long addr in RecordAddresses())
+            foreach (long address in RecordAddresses())
             {
-                var r = new ModRecord(M, sDat, tagsDat, addr);
-                if (records.ContainsKey(r.Key))
+                var r = new ModRecord(Memory, statsDat, tagsDat, address);
+                if (Records.ContainsKey(r.Key))
+                {
                     continue;
+                }
 
-                records.Add(r.Key, r);
+                Records.Add(r.Key, r);
                 bool addToItemIiers = r.Domain != ModDomain.Monster;
-                if (!addToItemIiers) continue;
-                Tuple<string, ModType> byTierKey = Tuple.Create(r.Group, r.AffixType);
-                List<ModRecord> groupMembers;
-                if (!recordsByTier.TryGetValue(byTierKey, out groupMembers))
+                if (!addToItemIiers)
+                {
+                    continue;
+                }
+
+                Tuple<string, ModType> tierKey = Tuple.Create(r.Group, r.AffixType);
+                if (!RecordsByTier.TryGetValue(tierKey, out List<ModRecord> groupMembers))
                 {
                     groupMembers = new List<ModRecord>();
-                    recordsByTier[byTierKey] = groupMembers;
+                    RecordsByTier[tierKey] = groupMembers;
                 }
+
                 groupMembers.Add(r);
             }
-            foreach (var list in recordsByTier.Values)
+
+            foreach (List<ModRecord> list in RecordsByTier.Values)
             {
                 list.Sort(ModRecord.ByLevelComparer);
             }
@@ -79,73 +84,73 @@ namespace PoeHUD.Poe.FilesInMemory
 
         public class ModRecord
         {
-            public long Address;
             public const int NumberOfStats = 4;
             public static IComparer<ModRecord> ByLevelComparer = new LevelComparer();
             public readonly string Key;
+            public long Address;
             public ModType AffixType;
             public ModDomain Domain;
             public string Group;
-            public int MinLevel;
+            public int MinimumLevel;
             public StatsDat.StatRecord[] StatNames; // Game refers to Stats.dat line
             public IntRange[] StatRange;
             public Dictionary<string, int> TagChances;
             public TagsDat.TagRecord[] Tags; // Game refers to Tags.dat line
-            public long Unknown8;//Unknown pointer
+            public long Unknown8; // Unknown pointer
             public string UserFriendlyName;
-            // more fields can be added (see in visualGGPK)
+            //// more fields can be added (see in visualGGPK)
 
-            public ModRecord(Memory m, StatsDat sDat, TagsDat tagsDat, long addr)
+            public ModRecord(Memory memory, StatsDat statsDat, TagsDat tagsDat, long address)
             {
-                Address = addr;
-                Key = m.ReadStringU(m.ReadLong(addr + 0));
-                Unknown8 = m.ReadLong(addr + 0x8);
-                MinLevel = m.ReadInt(addr + 0x1C);
+                Address = address;
+                Key = memory.ReadStringU(memory.ReadLong(address + 0));
+                Unknown8 = memory.ReadLong(address + 0x8);
+                MinimumLevel = memory.ReadInt(address + 0x1C);
 
                 StatNames = new[]
                 {
-                    m.ReadLong(addr + 0x28) == 0
+                    memory.ReadLong(address + 0x28) == 0
                         ? null
-                        : sDat.records[m.ReadStringU(m.ReadLong(m.ReadLong(addr + 0x28)))],
-                    m.ReadLong(addr + 0x38) == 0
+                        : statsDat.Records[memory.ReadStringU(memory.ReadLong(memory.ReadLong(address + 0x28)))],
+                    memory.ReadLong(address + 0x38) == 0
                         ? null
-                        : sDat.records[m.ReadStringU(m.ReadLong(m.ReadLong(addr + 0x38)))],
-                    m.ReadLong(addr + 0x48) == 0
+                        : statsDat.Records[memory.ReadStringU(memory.ReadLong(memory.ReadLong(address + 0x38)))],
+                    memory.ReadLong(address + 0x48) == 0
                         ? null
-                        : sDat.records[m.ReadStringU(m.ReadLong(m.ReadLong(addr + 0x48)))],
-                    m.ReadLong(addr + 0x58) == 0
+                        : statsDat.Records[memory.ReadStringU(memory.ReadLong(memory.ReadLong(address + 0x48)))],
+                    memory.ReadLong(address + 0x58) == 0
                         ? null
-                        : sDat.records[m.ReadStringU(m.ReadLong(m.ReadLong(addr + 0x58)))]
+                        : statsDat.Records[memory.ReadStringU(memory.ReadLong(memory.ReadLong(address + 0x58)))]
                 };
 
-                Domain = (ModDomain)m.ReadInt(addr + 0x60);
+                Domain = (ModDomain)memory.ReadInt(address + 0x60);
 
-                UserFriendlyName = m.ReadStringU(m.ReadLong(addr + 0x64));
+                UserFriendlyName = memory.ReadStringU(memory.ReadLong(address + 0x64));
 
-                AffixType = (ModType)m.ReadInt(addr + 0x6C);
-                Group = m.ReadStringU(m.ReadLong(addr + 0x70));
+                AffixType = (ModType)memory.ReadInt(address + 0x6C);
+                Group = memory.ReadStringU(memory.ReadLong(address + 0x70));
 
                 StatRange = new[]
                 {
-                    new IntRange(m.ReadInt(addr + 0x78), m.ReadInt(addr + 0x7C)),
-                    new IntRange(m.ReadInt(addr + 0x80), m.ReadInt(addr + 0x84)),
-                    new IntRange(m.ReadInt(addr + 0x88), m.ReadInt(addr + 0x8C)),
-                    new IntRange(m.ReadInt(addr + 0x90), m.ReadInt(addr + 0x94))
+                    new IntRange(memory.ReadInt(address + 0x78), memory.ReadInt(address + 0x7C)),
+                    new IntRange(memory.ReadInt(address + 0x80), memory.ReadInt(address + 0x84)),
+                    new IntRange(memory.ReadInt(address + 0x88), memory.ReadInt(address + 0x8C)),
+                    new IntRange(memory.ReadInt(address + 0x90), memory.ReadInt(address + 0x94))
                 };
 
-                Tags = new TagsDat.TagRecord[m.ReadLong(addr + 0x98)];
-                long ta = m.ReadLong(addr + 0xA0);
+                Tags = new TagsDat.TagRecord[memory.ReadLong(address + 0x98)];
+                long ta = memory.ReadLong(address + 0xA0);
                 for (int i = 0; i < Tags.Length; i++)
                 {
                     long ii = ta + 0x8 + 0x10 * i;
-                    Tags[i] = tagsDat.records[m.ReadStringU(m.ReadLong(ii, 0), 255)];
+                    Tags[i] = tagsDat.Records[memory.ReadStringU(memory.ReadLong(ii, 0), 255)];
                 }
 
-                TagChances = new Dictionary<string,int>(m.ReadInt(addr + 0xA8));
-                long tc = m.ReadLong(addr + 0xB0);
+                TagChances = new Dictionary<string, int>(memory.ReadInt(address + 0xA8));
+                long tc = memory.ReadLong(address + 0xB0);
                 for (int i = 0; i < Tags.Length; i++)
                 {
-                    TagChances[Tags[i].Key] = m.ReadInt(tc + 4 * i);
+                    TagChances[Tags[i].Key] = memory.ReadInt(tc + 4 * i);
                 }
             }
 
@@ -153,7 +158,12 @@ namespace PoeHUD.Poe.FilesInMemory
             {
                 public int Compare(ModRecord x, ModRecord y)
                 {
-                    return -x.MinLevel + y.MinLevel;
+                    if (x != null && y != null)
+                    {
+                        return -x.MinimumLevel + y.MinimumLevel;
+                    }
+
+                    return 0;
                 }
             }
         }

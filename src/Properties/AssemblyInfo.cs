@@ -4,13 +4,13 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 
-[assembly: AssemblyVersion("6.3.9600.0")]
+[assembly: AssemblyVersion("3.0.2")]
 [assembly: Debuggable(DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints)]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2014")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyFileVersion("6.3.9600.0")]
+[assembly: AssemblyFileVersion("")]
 [assembly: AssemblyProduct("")]
 [assembly: AssemblyTitle("")]
 [assembly: AssemblyTrademark("")]

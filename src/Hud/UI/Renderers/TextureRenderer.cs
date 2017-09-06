@@ -1,11 +1,11 @@
-﻿using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.UI.Vertexes;
+﻿using System;
+using System.Collections.Generic;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.HUD.UI.Vertexes;
 using SharpDX;
 using SharpDX.Direct3D9;
-using System;
-using System.Collections.Generic;
 
-namespace PoeHUD.Hud.UI.Renderers
+namespace PoEHUD.HUD.UI.Renderers
 {
     public sealed class TextureRenderer : IDisposable
     {
@@ -20,6 +20,16 @@ namespace PoeHUD.Hud.UI.Renderers
             textures = new Dictionary<string, Texture>();
         }
 
+        public static double ConvertToRadians(double angle)
+        {
+            return Math.PI / 180 * angle;
+        }
+
+        public static float VectorLength(Vector2 vec)
+        {
+            return (float)Math.Sqrt(vec.X * vec.X + vec.Y * vec.Y);
+        }
+
         public void Begin()
         {
             sprite.Begin();
@@ -29,13 +39,13 @@ namespace PoeHUD.Hud.UI.Renderers
         {
             Vector2 dir = RotateVect(NormalizeVector(p2 - p1) * width, 90);
             
-            Vector2 pTopLt = p1 + (width <= 1f ? Vector2.Zero : dir);//if width <= 1 we don't need to shift offset on both sides
+            Vector2 pTopLt = p1 + (width <= 1f ? Vector2.Zero : dir); // if width <= 1 we don't need to shift offset on both sides
             Vector2 pTopRt = p1 - dir;
             Vector2 pBotLt = p2 + (width <= 1f ? Vector2.Zero : dir);
             Vector2 pBotRt = p2 - dir;
 
             ColoredVertex[] data =
-           {
+            {
                 new ColoredVertex(pTopLt.X, pTopLt.Y, color),
                 new ColoredVertex(pTopRt.X, pTopRt.Y, color),
                 new ColoredVertex(pBotRt.X, pBotRt.Y, color),
@@ -45,33 +55,12 @@ namespace PoeHUD.Hud.UI.Renderers
             DrawColoredVertices(PrimitiveType.TriangleFan, 2, data);
         }
 
-        private Vector2 RotateVect(Vector2 v, float angle)
-        {
-            var theta = ConvertToRadians(angle);
-
-            var cs = Math.Cos(theta);
-            var sn = Math.Sin(theta);
-            var px = v.X * cs - v.Y * sn;
-            var py = v.X * sn + v.Y * cs;
-            return new Vector2((float)px, (float)py);
-        }
-
-        public double ConvertToRadians(double angle)
-        {
-            return (Math.PI / 180) * angle;
-        }
-
         public Vector2 NormalizeVector(Vector2 vec)
         {
             var length = VectorLength(vec);
             vec.X /= length;
             vec.Y /= length;
             return vec;
-        }
-
-        public float VectorLength(Vector2 vec)
-        {
-            return (float)Math.Sqrt((vec.X * vec.X) + (vec.Y * vec.Y));
         }
 
         public void DrawBox(RectangleF rect, Color color)
@@ -159,6 +148,17 @@ namespace PoeHUD.Hud.UI.Renderers
             Flush();
         }
 
+        private Vector2 RotateVect(Vector2 v, float angle)
+        {
+            var theta = ConvertToRadians(angle);
+
+            var cs = Math.Cos(theta);
+            var sn = Math.Sin(theta);
+            var px = v.X * cs - v.Y * sn;
+            var py = v.X * sn + v.Y * cs;
+            return new Vector2((float)px, (float)py);
+        }
+
         private void DrawColoredVertices(PrimitiveType type, int count, ColoredVertex[] data)
         {
             using (var declaration = new VertexDeclaration(device, ColoredVertex.VertexElements))
@@ -179,12 +179,14 @@ namespace PoeHUD.Hud.UI.Renderers
 
         private Texture GetTexture(string fileName)
         {
-            Texture texture;
-            if (!textures.TryGetValue(fileName, out texture))
+            if (textures.TryGetValue(fileName, out Texture texture))
             {
-                texture = Texture.FromFile(device, fileName);
-                textures.Add(fileName, texture);
+                return texture;
             }
+
+            texture = Texture.FromFile(device, fileName);
+            textures.Add(fileName, texture);
+
             return texture;
         }
     }

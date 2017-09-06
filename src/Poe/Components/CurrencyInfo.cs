@@ -1,7 +1,7 @@
-﻿namespace PoeHUD.Poe.Components
+﻿namespace PoEHUD.PoE.Components
 {
     public class CurrencyInfo : Component
     {
-        public int MaxStackSize => Address != 0 ? M.ReadInt(Address + 0x24) : 0;
+        public int MaximumStackSize => Address != 0 ? Memory.ReadInt(Address + 0x24) : 0;
     }
 }

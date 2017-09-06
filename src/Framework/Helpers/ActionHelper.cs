@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PoeHUD.Framework.Helpers
+namespace PoEHUD.Framework.Helpers
 {
     public static class ActionHelper
     {
@@ -19,8 +19,7 @@ namespace PoeHUD.Framework.Helpers
             action?.Invoke();
         }
 
-        public static void ThrowIf<TException>(bool condition)
-            where TException : Exception, new()
+        public static void ThrowIf<TException>(bool condition) where TException : Exception, new()
         {
             if (condition)
             {

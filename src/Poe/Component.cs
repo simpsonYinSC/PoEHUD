@@ -1,4 +1,4 @@
-namespace PoeHUD.Poe
+namespace PoEHUD.PoE
 {
     public abstract class Component : RemoteMemoryObject
     {

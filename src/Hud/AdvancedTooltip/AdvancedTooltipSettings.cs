@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-using PoeHUD.Hud.Settings;
+using PoEHUD.HUD.Settings;
 
-namespace PoeHUD.Hud.AdvancedTooltip
+namespace PoEHUD.HUD.AdvancedTooltip
 {
     public class AdvancedTooltipSettings : SettingsBase
     {
@@ -11,7 +11,7 @@ namespace PoeHUD.Hud.AdvancedTooltip
             Enable = true;
             ItemLevel = new ItemLevelSettings();
             ItemMods = new ItemModsSettings();
-            WeaponDps = new WeaponDpsSettings();
+            WeaponDPS = new WeaponDPSSettings();
         }
 
         [JsonProperty("Item level")]
@@ -21,6 +21,6 @@ namespace PoeHUD.Hud.AdvancedTooltip
         public ItemModsSettings ItemMods { get; set; }
 
         [JsonProperty("Weapon DPS")]
-        public WeaponDpsSettings WeaponDps { get; set; }
+        public WeaponDPSSettings WeaponDPS { get; set; }
     }
 }

@@ -1,7 +1,7 @@
-using PoeHUD.Hud.Settings;
+using PoEHUD.HUD.Settings;
 using SharpDX;
 
-namespace PoeHUD.Hud.Loot
+namespace PoEHUD.HUD.Loot
 {
     public sealed class BorderSettings : SettingsBase
     {

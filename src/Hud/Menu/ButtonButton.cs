@@ -1,12 +1,9 @@
-﻿using PoeHUD.Framework.Helpers;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
+﻿using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
 using SharpDX;
 using SharpDX.Direct3D9;
-using System;
-using System.Linq;
 
-namespace PoeHUD.Hud.Menu
+namespace PoEHUD.HUD.Menu
 {
     public class ButtonButton : MenuItem
     {
@@ -24,7 +21,11 @@ namespace PoeHUD.Hud.Menu
 
         public override void Render(Graphics graphics, MenuSettings settings)
         {
-            if (!IsVisible) { return; }
+            if (!IsVisible)
+            {
+                return;
+            }
+
             base.Render(graphics, settings);
 
             var textPosition = new Vector2(Bounds.X - 50 + Bounds.Width / 3, Bounds.Y + Bounds.Height / 2);
@@ -38,22 +39,8 @@ namespace PoeHUD.Hud.Menu
                 var imgRect = new RectangleF(Bounds.X + Bounds.Width - 1 - width, Bounds.Y + 1 + height - height / 2, width, height);
                 graphics.DrawImage("menu-arrow.png", imgRect);
             }
-            Children.ForEach(x => x.Render(graphics, settings));
-        }
 
-        protected override void HandleEvent(MouseEventID id, Vector2 pos)
-        {
-            if (id == MouseEventID.LeftButtonDown)
-            {
-                try
-                {
-                    node.OnPressed();
-                }
-                catch
-                {
-                    DebugPlug.DebugPlugin.LogMsg("Error in function that subscribed for: ButtonNode.OnPressed", 10, SharpDX.Color.Red);
-                }
-            }
+            Children.ForEach(x => x.Render(graphics, settings));
         }
 
         public override void SetHovered(bool hover)
@@ -62,6 +49,23 @@ namespace PoeHUD.Hud.Menu
             {
                 x.SetVisible(hover);
             });
+        }
+
+        protected override void HandleEvent(MouseEventId id, Vector2 pos)
+        {
+            if (id != MouseEventId.LeftButtonDown)
+            {
+                return;
+            }
+
+            try
+            {
+                node.OnPressed();
+            }
+            catch
+            {
+                DebugPlugin.DebugPlugin.LogMessage("Error in function that subscribed for: ButtonNode.OnPressed", 10, Color.Red);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D9;
 
-namespace PoeHUD.Hud.UI.Vertexes
+namespace PoEHUD.HUD.UI.Vertexes
 {
     public struct TexturedVertex
     {

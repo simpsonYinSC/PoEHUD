@@ -1,7 +1,7 @@
-using PoeHUD.Models.Enums;
 using System;
+using PoEHUD.Models.Enums;
 
-namespace PoeHUD.Hud.Loot
+namespace PoEHUD.HUD.Loot
 {
     public struct CraftingBase
     {
@@ -17,6 +17,11 @@ namespace PoeHUD.Hud.Loot
 
         public override bool Equals(object obj)
         {
+            if (obj == null)
+            {
+                return false;
+            }
+
             var strct = (CraftingBase)obj;
             return Name.Equals(strct.Name, StringComparison.InvariantCultureIgnoreCase);
         }

@@ -1,8 +1,16 @@
-using PoeHUD.Poe.Components;
 using System;
+using PoEHUD.PoE.Components;
 
-namespace PoeHUD.Poe.Elements
+namespace PoEHUD.PoE.Elements
 {
+    public enum ToolTipType
+    {
+        None,
+        InventoryItem,
+        ItemOnGround,
+        ItemInChat
+    }
+
     // Don't confuse this class name with it's purpose.
     // Purpose of this class is to handle/deal with Hover Items, rather than
     // Inventory Item. Hovered items can be on Chat, inventory or on ground.
@@ -15,21 +23,25 @@ namespace PoeHUD.Poe.Elements
         private readonly Func<ItemOnGroundTooltip> toolTipOnground;
         private ToolTipType? toolTip;
 
-        public int InventPosX => M.ReadInt(Address + 0xb60);
-        public int InventPosY => M.ReadInt(Address + 0xb64);
-
         public HoverItemIcon()
         {
-            toolTipOnground = () => Game.IngameState.IngameUi.ItemOnGroundTooltip;
+            toolTipOnground = () => Game.IngameState.IngameUI.ItemOnGroundTooltip;
             inventoryItemTooltip = () => ReadObject<Element>(Address + 0xB10);
             itemInChatTooltip = () => ReadObject<Element>(Address + 0x7B8);
         }
 
-        public ToolTipType ToolTipType {
-            get {
-                try {
+        public int InventoryPositionX => Memory.ReadInt(Address + 0xb60);
+        public int InventoryPositionY => Memory.ReadInt(Address + 0xb64);
+
+        public ToolTipType ToolTipType
+        {
+            get
+            {
+                try
+                {
                     return (ToolTipType)(toolTip ?? (toolTip = GetToolTipType()));
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     return ToolTipType.None;
                 }
@@ -44,12 +56,12 @@ namespace PoeHUD.Poe.Elements
                 {
                     case ToolTipType.ItemOnGround:
                         return toolTipOnground().Tooltip;
-
                     case ToolTipType.InventoryItem:
                         return inventoryItemTooltip();
                     case ToolTipType.ItemInChat:
                         return itemInChatTooltip();
                 }
+
                 return null;
             }
         }
@@ -75,18 +87,13 @@ namespace PoeHUD.Poe.Elements
                 switch (ToolTipType)
                 {
                     case ToolTipType.ItemOnGround:
-
-                        ItemsOnGroundLabelElement le = Game.IngameState.IngameUi.ReadObjectAt<ItemsOnGroundLabelElement>(0xD00);
-                        if (le == null)
-                            return null;
-                        Entity e = le.ReadObjectAt<Entity>(OffsetBuffers + 0x334);
-                        if (e == null)
-                            return null;
-                        return e.GetComponent<WorldItem>().ItemEntity;
-
+                        ItemsOnGroundLabelElement le = Game.IngameState.IngameUI.ReadObjectAt<ItemsOnGroundLabelElement>(0xD00);
+                        Entity e = le?.ReadObjectAt<Entity>(OffsetBuffers + 0x334);
+                        return e?.GetComponent<WorldItem>().ItemEntity;
                     case ToolTipType.InventoryItem:
                         return ReadObject<Entity>(Address + 0xB58);
                 }
+
                 return null;
             }
         }
@@ -97,20 +104,13 @@ namespace PoeHUD.Poe.Elements
             {
                 return ToolTipType.InventoryItem;
             }
-            if (toolTipOnground != null && toolTipOnground().Tooltip != null && toolTipOnground().TooltipUI != null && toolTipOnground().TooltipUI.IsVisible)
+
+            if (toolTipOnground?.Invoke().Tooltip != null && toolTipOnground().TooltipUI != null && toolTipOnground().TooltipUI.IsVisible)
             {
                 return ToolTipType.ItemOnGround;
             }
             
             return ToolTipType.None;
         }
-    }
-
-    public enum ToolTipType
-    {
-        None,
-        InventoryItem,
-        ItemOnGround,
-        ItemInChat
     }
 }

@@ -1,7 +1,7 @@
-﻿using SharpDX;
-using System;
+﻿using System;
+using SharpDX;
 
-namespace PoeHUD.Hud.Interfaces
+namespace PoEHUD.HUD.Interfaces
 {
     public interface IPanelChild
     {

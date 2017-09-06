@@ -1,14 +1,14 @@
-using PoeHUD.Controllers;
-using PoeHUD.Hud.UI;
-using PoeHUD.Models;
-using PoeHUD.Poe.Components;
 using System.Collections.Generic;
+using PoEHUD.Controllers;
+using PoEHUD.HUD.UI;
+using PoEHUD.Models;
+using PoEHUD.PoE.Components;
 
-namespace PoeHUD.Hud.Trackers
+namespace PoEHUD.HUD.Trackers
 {
-    public class PoiTracker : PluginWithMapIcons<PoiTrackerSettings>
+    public class PoITracker : PluginWithMapIcons<PoITrackerSettings>
     {
-        private static readonly List<string> masters = new List<string>
+        private static readonly List<string> Masters = new List<string>
         {
             "Metadata/NPC/Missions/Wild/Dex",
             "Metadata/NPC/Missions/Wild/DexInt",
@@ -19,12 +19,12 @@ namespace PoeHUD.Hud.Trackers
             "Metadata/NPC/Missions/Wild/StrInt"
         };
 
-        private static readonly List<string> cadiro = new List<string>
+        private static readonly List<string> Cadiro = new List<string>
         {
             "Metadata/NPC/League/Cadiro"
         };
 
-        private static readonly List<string> perandus = new List<string>
+        private static readonly List<string> Perandus = new List<string>
         {
             "Metadata/Chests/PerandusChests/PerandusChestStandard",
             "Metadata/Chests/PerandusChests/PerandusChestRarity",
@@ -47,21 +47,26 @@ namespace PoeHUD.Hud.Trackers
             "Metadata/Chests/PerandusChests/PerandusManorLostTreasureChest"
         };
 
-        public PoiTracker(GameController gameController, Graphics graphics, PoiTrackerSettings settings)
-            : base(gameController, graphics, settings)
-        { }
+        public PoITracker(GameController gameController, Graphics graphics, PoITrackerSettings settings) : base(gameController, graphics, settings)
+        {
+        }
 
         public override void Render()
         {
-            if (!Settings.Enable) { }
+            if (!Settings.Enable)
+            {
+            }
         }
 
         protected override void OnEntityAdded(EntityWrapper entity)
         {
-            if (!Settings.Enable) { return; }
+            if (!Settings.Enable)
+            {
+                return;
+            }
 
             MapIcon icon = GetMapIcon(entity);
-            if (null != icon)
+            if (icon != null)
             {
                 CurrentIcons[entity] = icon;
             }
@@ -69,31 +74,34 @@ namespace PoeHUD.Hud.Trackers
 
         private MapIcon GetMapIcon(EntityWrapper e)
         {
-            if (e.HasComponent<NPC>() && masters.Contains(e.Path))
+            if (e.HasComponent<NPC>() && Masters.Contains(e.Path))
             {
                 return new CreatureMapIcon(e, "ms-cyan.png", () => Settings.Masters, Settings.MastersIcon);
             }
-            if (e.HasComponent<NPC>() && cadiro.Contains(e.Path))
+
+            if (e.HasComponent<NPC>() && Cadiro.Contains(e.Path))
             {
                 return new CreatureMapIcon(e, "ms-green.png", () => Settings.Cadiro, Settings.CadiroIcon);
             }
-            if (e.HasComponent<Chest>() && perandus.Contains(e.Path))
-            {
-                return new ChestMapIcon(e, new HudTexture("strongbox.png", Settings.PerandusChestColor), () => Settings.PerandusChest, Settings.PerandusChestIcon);
-            }
-            if (e.HasComponent<Chest>() && !e.GetComponent<Chest>().IsOpened)
-            {
-                if (e.Path.Contains("BreachChest"))
-                {
-                    return new ChestMapIcon(e, new HudTexture("strongbox.png", Settings.BreachChestColor), () => Settings.BreachChest, Settings.BreachChestIcon);
-                }
 
-                return e.GetComponent<Chest>().IsStrongbox
-                    ? new ChestMapIcon(e, new HudTexture("strongbox.png",
-                    e.GetComponent<ObjectMagicProperties>().Rarity), () => Settings.Strongboxes, Settings.StrongboxesIcon)
-                    : new ChestMapIcon(e, new HudTexture("chest.png"), () => Settings.Chests, Settings.ChestsIcon);
+            if (e.HasComponent<Chest>() && Perandus.Contains(e.Path))
+            {
+                return new ChestMapIcon(e, new HUDTexture("strongbox.png", Settings.PerandusChestColor), () => Settings.PerandusChest, Settings.PerandusChestIcon);
             }
-            return null;
+
+            if (!e.HasComponent<Chest>() || e.GetComponent<Chest>().IsOpened)
+            {
+                return null;
+            }
+
+            if (e.Path.Contains("BreachChest"))
+            {
+                return new ChestMapIcon(e, new HUDTexture("strongbox.png", Settings.BreachChestColor), () => Settings.BreachChest, Settings.BreachChestIcon);
+            }
+
+            return e.GetComponent<Chest>().IsStrongbox
+                ? new ChestMapIcon(e, new HUDTexture("strongbox.png", e.GetComponent<ObjectMagicProperties>().Rarity), () => Settings.Strongboxes, Settings.StrongboxesIcon)
+                : new ChestMapIcon(e, new HUDTexture("chest.png"), () => Settings.Chests, Settings.ChestsIcon);
         }
     }
 }

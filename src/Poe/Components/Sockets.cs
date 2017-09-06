@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PoeHUD.Poe.Components
+namespace PoEHUD.PoE.Components
 {
     public class Sockets : Component
     {
@@ -14,27 +14,30 @@ namespace PoeHUD.Poe.Components
                 {
                     return 0;
                 }
-                long pLinkStart = M.ReadLong(Address + 0x60);
-                long pLinkEnd = M.ReadLong(Address + 0x68);
-                long LinkGroupingCount = pLinkEnd - pLinkStart;
-                if (LinkGroupingCount <= 0 || LinkGroupingCount > 6)
+
+                long ptrLinkStart = Memory.ReadLong(Address + 0x60);
+                long ptrLinkEnd = Memory.ReadLong(Address + 0x68);
+                long linkGroupingCount = ptrLinkEnd - ptrLinkStart;
+                if (linkGroupingCount <= 0 || linkGroupingCount > 6)
                 {
                     return 0;
                 }
-                int BiggestLinkGroupSize = 0;
-                for (int i = 0; i < LinkGroupingCount; i++)
+
+                int biggestLinkGroupSize = 0;
+                for (int i = 0; i < linkGroupingCount; i++)
                 {
-                    int LinkGroupSize = M.ReadByte(pLinkStart + i);
-                    if (LinkGroupSize > BiggestLinkGroupSize)
+                    int linkGroupSize = Memory.ReadByte(ptrLinkStart + i);
+                    if (linkGroupSize > biggestLinkGroupSize)
                     {
-                        BiggestLinkGroupSize = LinkGroupSize;
+                        biggestLinkGroupSize = linkGroupSize;
                     }
                 }
-                return BiggestLinkGroupSize;
+
+                return biggestLinkGroupSize;
             }
         }
 
-        public List<int[]> Links
+        public IEnumerable<int[]> Links
         {
             get
             {
@@ -43,26 +46,30 @@ namespace PoeHUD.Poe.Components
                 {
                     return list;
                 }
-                long pLinkStart = M.ReadLong(Address + 0x60);
-                long pLinkEnd = M.ReadLong(Address + 0x68);
-                long LinkGroupingCount = pLinkEnd - pLinkStart;
-                if (LinkGroupingCount <= 0 || LinkGroupingCount > 6)
+
+                long ptrLinkStart = Memory.ReadLong(Address + 0x60);
+                long ptrLinkEnd = Memory.ReadLong(Address + 0x68);
+                long linkGroupingCount = ptrLinkEnd - ptrLinkStart;
+                if (linkGroupingCount <= 0 || linkGroupingCount > 6)
                 {
                     return list;
                 }
-                int LinkCounter = 0;
+
+                int linkCounter = 0;
                 List<int> socketList = SocketList;
-                for (int i = 0; i < LinkGroupingCount; i++)
+                for (int i = 0; i < linkGroupingCount; i++)
                 {
-                    int LinkGroupSize = M.ReadByte(pLinkStart + i);
-                    var array = new int[LinkGroupSize];
-                    for (int j = 0; j < LinkGroupSize; j++)
+                    int linkGroupSize = Memory.ReadByte(ptrLinkStart + i);
+                    int[] array = new int[linkGroupSize];
+                    for (int j = 0; j < linkGroupSize; j++)
                     {
-                        array[j] = socketList[j + LinkCounter];
+                        array[j] = socketList[j + linkCounter];
                     }
+
                     list.Add(array);
-                    LinkCounter += LinkGroupSize;
+                    linkCounter += linkGroupSize;
                 }
+
                 return list;
             }
         }
@@ -76,16 +83,19 @@ namespace PoeHUD.Poe.Components
                 {
                     return list;
                 }
+
                 long num = Address + 0x18;
                 for (int i = 0; i < 6; i++)
                 {
-                    int num2 = M.ReadInt(num);
+                    int num2 = Memory.ReadInt(num);
                     if (num2 >= 1 && num2 <= 4)
                     {
-                        list.Add(M.ReadInt(num));
+                        list.Add(Memory.ReadInt(num));
                     }
+
                     num += 4;
                 }
+
                 return list;
             }
         }
@@ -96,7 +106,11 @@ namespace PoeHUD.Poe.Components
         {
             get
             {
-                return Address != 0 && Links.Any(current => current.Length >= 3 && current.Contains(1) && current.Contains(2) && current.Contains(3));
+                return Address != 0
+                       && Links.Any(current => current.Length >= 3
+                                               && current.Contains(1)
+                                               && current.Contains(2)
+                                               && current.Contains(3));
             }
         }
 
@@ -105,25 +119,31 @@ namespace PoeHUD.Poe.Components
             get
             {
                 var list = new List<string>();
-                foreach (var current in Links)
+                foreach (int[] current in Links)
                 {
                     var sb = new StringBuilder();
-                    foreach (var color in current)
+                    foreach (int color in current)
                     {
                         switch (color)
                         {
                             case 1:
-                                sb.Append("R"); break;
+                                sb.Append("R");
+                                break;
                             case 2:
-                                sb.Append("G"); break;
+                                sb.Append("G");
+                                break;
                             case 3:
-                                sb.Append("B"); break;
+                                sb.Append("B");
+                                break;
                             case 4:
-                                sb.Append("W"); break;
+                                sb.Append("W");
+                                break;
                         }
                     }
+
                     list.Add(sb.ToString());
                 }
+
                 return list;
             }
         }

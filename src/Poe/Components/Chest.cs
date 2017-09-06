@@ -1,8 +1,8 @@
-namespace PoeHUD.Poe.Components
+namespace PoEHUD.PoE.Components
 {
     public class Chest : Component
     {
-        public bool IsOpened => Address != 0 && M.ReadByte(Address + 0x40) == 1;
-        public bool IsStrongbox => Address != 0 && M.ReadInt(Address + 0x60) != 0;
+        public bool IsOpened => Address != 0 && Memory.ReadByte(Address + 0x40) == 1;
+        public bool IsStrongbox => Address != 0 && Memory.ReadInt(Address + 0x60) != 0;
     }
 }

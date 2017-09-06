@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using PoeHUD.Framework;
+using PoEHUD.Framework;
 
-namespace PoeHUD.Hud.Settings
+namespace PoEHUD.HUD.Settings
 {
     public class HotkeyNode
     {
         [JsonIgnore]
         public Action OnValueChanged = delegate { };
+
         private Keys value;
+        private bool pressed;
 
         public HotkeyNode()
         {
@@ -23,21 +25,23 @@ namespace PoeHUD.Hud.Settings
 
         public Keys Value
         {
-            get { return value; }
+            get => value;
             set
             {
-                if (this.value != value)
+                if (this.value == value)
                 {
-                    this.value = value;
+                    return;
+                }
+
+                this.value = value;
                 
-                    try
-                    {
-                        OnValueChanged();
-                    }
-                    catch
-                    {
-                        DebugPlug.DebugPlugin.LogMsg("Error in function that subscribed for: HotkeyNode.OnValueChanged", 10, SharpDX.Color.Red);
-                    }
+                try
+                {
+                    OnValueChanged();
+                }
+                catch
+                {
+                    DebugPlugin.DebugPlugin.LogMessage("Error in function that subscribed for: HotkeyNode.OnValueChanged", 10, SharpDX.Color.Red);
                 }
             }
         }
@@ -52,17 +56,20 @@ namespace PoeHUD.Hud.Settings
             return new HotkeyNode(value);
         }
 
-        private bool _pressed;
         public bool PressedOnce()
         {
-            if(WinApi.IsKeyDown(value))
+            if (WindowsAPI.IsKeyDown(value))
             {
-                if (_pressed) return false;
-                _pressed = true;
+                if (pressed)
+                {
+                    return false;
+                }
+
+                pressed = true;
                 return true;
             }
 
-            _pressed = false;
+            pressed = false;
             return false;
         }
     }

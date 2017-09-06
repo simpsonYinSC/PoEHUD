@@ -1,21 +1,19 @@
 using System.Collections.Generic;
 
-namespace PoeHUD.Poe.Components
+namespace PoEHUD.PoE.Components
 {
     public class Actor : Component
     {
         /// <summary>
-        ///     Standing still = 2048 =bit 11 set
-        ///     running = 2178 = bit 11 & 7
-        ///     Maybe Bit-field : Bit 7 set = running
+        /// Standing still = 2048 =bit 11 set
+        /// running = 2178 = bit 11 & 7
+        /// Maybe Bit-field : Bit 7 set = running
         /// </summary>
-        public int ActionId => Address != 0 ? M.ReadInt(Address + 0xD8) : 1;
+        public int ActionId => Address != 0 ? Memory.ReadInt(Address + 0xD8) : 1;
+        public bool IsMoving => (ActionId & 128) > 0;
+        public bool IsAttacking => (ActionId & 2) > 0;
 
-        public bool isMoving => (ActionId & 128) > 0;
-
-        public bool isAttacking => (ActionId & 2) > 0;
-
-        public List<long> Minions
+        public IEnumerable<long> Minions
         {
             get
             {
@@ -24,13 +22,15 @@ namespace PoeHUD.Poe.Components
                 {
                     return list;
                 }
-                long num = M.ReadLong(Address + 0x308);
-                long num2 = M.ReadLong(Address + 0x310);
+
+                long num = Memory.ReadLong(Address + 0x308);
+                long num2 = Memory.ReadLong(Address + 0x310);
                 for (long i = num; i < num2; i += 8)
                 {
-                    long item = M.ReadLong(i);
+                    long item = Memory.ReadLong(i);
                     list.Add(item);
                 }
+
                 return list;
             }
         }
@@ -41,16 +41,18 @@ namespace PoeHUD.Poe.Components
             {
                 return false;
             }
-            long num = M.ReadLong(Address + 0x308);
-            long num2 = M.ReadLong(Address + 0x310);
+
+            long num = Memory.ReadLong(Address + 0x308);
+            long num2 = Memory.ReadLong(Address + 0x310);
             for (long i = num; i < num2; i += 8)
             {
-                long num3 = M.ReadLong(i);
+                long num3 = Memory.ReadLong(i);
                 if (num3 == entity.Id)
                 {
                     return true;
                 }
             }
+
             return false;
         }
     }

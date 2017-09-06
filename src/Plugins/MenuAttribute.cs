@@ -1,27 +1,29 @@
 ﻿using System;
 
-namespace PoeHUD.Plugins
+namespace PoEHUD.Plugins
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class MenuAttribute : Attribute
     {
-        public string MenuName = "";
+        public string MenuName;
         public string Tooltip;
-        public int index = -1;
-        public int parentIndex = -1;
+        public int Index = -1;
+        public int ParentIndex = -1;
 
         public MenuAttribute(string menuName)
         {
             MenuName = menuName;
         }
+
         public MenuAttribute(string menuName, string tooltip) : this(menuName)
         {
             Tooltip = tooltip;
         }
+
         public MenuAttribute(string menuName, int index)
         {
             MenuName = menuName;
-            this.index = index;
+            Index = index;
         }
 
         public MenuAttribute(string menuName, string tooltip, int index) : this(menuName, index)
@@ -32,8 +34,8 @@ namespace PoeHUD.Plugins
         public MenuAttribute(string menuName, int index, int parentIndex)
         {
             MenuName = menuName;
-            this.index = index;
-            this.parentIndex = parentIndex;
+            Index = index;
+            ParentIndex = parentIndex;
         }
 
         public MenuAttribute(string menuName, string tooltip, int index, int parentIndex) : this(menuName, index, parentIndex)

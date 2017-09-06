@@ -1,109 +1,204 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.Framework;
-using PoeHUD.Hud.Menu;
-using PoeHUD.Hud.PluginExtension;
-using PoeHUD.Models;
-using System;
+﻿using System;
 using System.IO;
-using Graphics = PoeHUD.Hud.UI.Graphics;
+using PoEHUD.Controllers;
+using PoEHUD.Framework;
+using PoEHUD.HUD.DebugPlugin;
+using PoEHUD.HUD.Menu;
+using PoEHUD.HUD.PluginExtension;
+using PoEHUD.Models;
+using Graphics = PoEHUD.HUD.UI.Graphics;
 
-namespace PoeHUD.Plugins
+namespace PoEHUD.Plugins
 {
     public abstract class BasePlugin
     {
-        public BasePlugin()
+        public const float PluginErrorDisplayTime = 3;
+        public static PluginExtensionPlugin API;
+        public string PluginName;
+        protected Action externalSaveSettings = delegate { };
+        protected Action externalLoadSettings = delegate { };
+        private const string LogFileName = "ErrorLog.txt";
+
+        protected BasePlugin()
         {
             PluginName = GetType().Name;
         }
-        public static PluginExtensionPlugin API;
+
         public GameController GameController => API.GameController;
         public Graphics Graphics => API.Graphics;
         public Memory Memory => GameController.Memory;
-
-
         public string PluginDirectory { get; private set; }
         public string LocalPluginDirectory { get; private set; }
-        public string PluginName;
+        public virtual bool AllowRender => true;
+        private string LogPath => PluginDirectory + "\\" + LogFileName;
 
-        protected Action eSaveSettings = delegate { };
-        protected Action eLoadSettings = delegate { };
+        public static void LogError(object message, float displayTime)
+        {
+            LogError(message?.ToString() ?? "null", displayTime);
+        }
 
-        public virtual bool bAllowRender => true;
+        public static void LogError(string message, float displayTime)
+        {
+            PluginExtensionPlugin.LogError(message, displayTime);
+        }
+
+        public static void LogMessage(object message, float displayTime)
+        {
+            LogMessage(message?.ToString() ?? "null", displayTime);
+        }
+
+        public static void LogMessage(string message, float displayTime)
+        {
+            PluginExtensionPlugin.LogMessage(message, displayTime);
+        }
+
+        public static void LogMessage(object message, float displayTime, SharpDX.Color color)
+        {
+            DebugPlugin.LogMessage(message?.ToString() ?? "null", displayTime, color);
+        }
 
         #region ExternalInvokeMethods
-        public void iInitialise()
+
+        public void ExternalInitialise()
         {
-            try { Initialise(); }
+            try
+            {
+                Initialise();
+            }
             catch (Exception e)
             {
                 HandlePluginError("Initialise", e);
-            }   
+            }
         }
-        public void iRender()
-        {
-            if (!bAllowRender) return;
 
-            try { Render(); }
+        public void ExternalOnRender()
+        {
+            if (!AllowRender)
+            {
+                return;
+            }
+
+            try
+            {
+                Render();
+            }
             catch (Exception e)
             {
                 HandlePluginError("Render", e);
             }
         }
-        public void iEntityAdded(EntityWrapper entityWrapper)
+
+        public void ExternalEntityAdded(EntityWrapper entityWrapper)
         {
-            try { EntityAdded(entityWrapper); }
+            try
+            {
+                EntityAdded(entityWrapper);
+            }
             catch (Exception e)
             {
                 HandlePluginError("EntityAdded", e);
             }
         }
-        public void iEntityRemoved(EntityWrapper entityWrapper)
+
+        public void ExternalEntityRemoved(EntityWrapper entityWrapper)
         {
-            try { EntityRemoved(entityWrapper); }
+            try
+            {
+                EntityRemoved(entityWrapper);
+            }
             catch (Exception e)
             {
                 HandlePluginError("EntityRemoved", e);
             }
         }
-        public void iOnClose()
-        { 
-            try { OnClose(); }
+
+        public void ExternalOnClose()
+        {
+            try
+            {
+                OnClose();
+            }
             catch (Exception e)
             {
                 HandlePluginError("OnClose", e);
             }
-            eSaveSettings();
+
+            externalSaveSettings();
         }
-        public void iInitialiseMenu(MenuItem menu)
+
+        public void ExternalInitialiseMenu(MenuItem menu)
         {
-            try { InitialiseMenu(menu); }
+            try
+            {
+                InitialiseMenu(menu);
+            }
             catch (Exception e)
             {
                 HandlePluginError("InitialiseMenu", e);
             }
         }
 
-        public void iLoadSettings()
+        public void ExternalLoadSettings()
         {
-            try { eLoadSettings(); }
+            try
+            {
+                externalLoadSettings();
+            }
             catch (Exception e)
             {
                 HandlePluginError("LoadSettings", e);
             }
         }
+
+        public void ExternalSaveSetting()
+        {
+            try
+            {
+                externalSaveSettings();
+            }
+            catch (Exception e)
+            {
+                HandlePluginError("SaveSettings", e);
+            }
+        }
+
         #endregion
 
-        public virtual void Initialise() { }
-        public virtual void Render() { }
-        public virtual void EntityAdded(EntityWrapper entityWrapper) { }
-        public virtual void EntityRemoved(EntityWrapper entityWrapper) { }
-        public virtual void OnClose() { }
-        public virtual void InitialiseMenu(MenuItem menu) { }
+        public virtual void Initialise()
+        {
+        }
 
-        public float PluginErrorDisplayTime = 3;
-        private string LogFileName = "ErrorLog.txt";
+        public virtual void Render()
+        {
+        }
 
-        private string logPath => PluginDirectory + "\\" + LogFileName;
+        public virtual void EntityAdded(EntityWrapper entityWrapper)
+        {
+        }
+
+        public virtual void EntityRemoved(EntityWrapper entityWrapper)
+        {
+        }
+
+        public virtual void OnClose()
+        {
+        }
+
+        public virtual void InitialiseMenu(MenuItem menu)
+        {
+        }
+
+        public void Init(PluginExtensionPlugin api, ExternalPlugin pluginData)
+        {
+            API = api;
+            PluginDirectory = pluginData.PluginDir;
+            LocalPluginDirectory = PluginDirectory.Substring(PluginDirectory.IndexOf(@"\plugins\", StringComparison.Ordinal) + 1); 
+        }
+
+        public void Destroy()
+        {
+            throw new NotImplementedException();
+        }
 
         private void HandlePluginError(string methodName, Exception exception)
         {
@@ -111,11 +206,11 @@ namespace PoeHUD.Plugins
 
             try
             {
-                using (StreamWriter w = File.AppendText(logPath))
+                using (StreamWriter w = File.AppendText(LogPath))
                 {
                     w.Write("\r\nLog Entry : ");
                     w.WriteLine("{0} {1}", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());
-                    w.WriteLine($" Method error: {methodName} : {exception.ToString()}");
+                    w.WriteLine($" Method error: {methodName} : {exception}");
                     w.WriteLine("-------------------------------");
                 }
             }
@@ -123,55 +218,6 @@ namespace PoeHUD.Plugins
             {
                 LogError(" Can't save error log. Error: " + e.Message, 5);
             }
-        }
-        public static void LogError(object message, float displayTime)
-        {
-            if(message == null)
-                LogError("null", displayTime);
-            else
-                LogError(message.ToString(), displayTime);
-        }
-        public static void LogError(string message, float displayTime)
-        {
-            if(API == null)
-                return;
-
-            API.LogError(message, displayTime);
-        }
-
-        public static void LogMessage(object message, float displayTime)
-        {
-            if (message == null)
-                LogMessage("null", displayTime);
-            else
-                LogMessage(message.ToString(), displayTime);
-        }
-        public static void LogMessage(string message, float displayTime)
-        {
-            if (API == null)
-                return;
-
-            API.LogMessage(message, displayTime);
-        }
-
-        public static void LogMessage(object message, float displayTime, SharpDX.Color color)
-        {
-            if (message == null)
-                DebugPlug.DebugPlugin.LogMsg("null", displayTime, color);
-            else
-                DebugPlug.DebugPlugin.LogMsg(message.ToString(), displayTime, color);
-        }
-
-        public void iInit(PluginExtensionPlugin api, ExternalPlugin pluginData)
-        {
-            API = api;
-            PluginDirectory = pluginData.PluginDir;
-            LocalPluginDirectory = PluginDirectory.Substring(PluginDirectory.IndexOf(@"\plugins\") + 1); 
-        }
-
-        public void Destroy()
-        {
-            throw new NotImplementedException();
         }
     }
 }

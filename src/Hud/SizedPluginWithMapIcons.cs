@@ -1,18 +1,17 @@
-﻿using PoeHUD.Controllers;
-using PoeHUD.Hud.Interfaces;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Hud.UI;
+﻿using System;
+using PoEHUD.Controllers;
+using PoEHUD.HUD.Interfaces;
+using PoEHUD.HUD.Settings;
+using PoEHUD.HUD.UI;
 using SharpDX;
-using System;
 
-namespace PoeHUD.Hud
+namespace PoEHUD.HUD
 {
-    public abstract class SizedPluginWithMapIcons<TSettings> : PluginWithMapIcons<TSettings>, IPanelChild
-        where TSettings : SettingsBase
+    public abstract class SizedPluginWithMapIcons<TSettings> : PluginWithMapIcons<TSettings>, IPanelChild where TSettings : SettingsBase
     {
-        protected SizedPluginWithMapIcons(GameController gameController, Graphics graphics, TSettings settings)
-            : base(gameController, graphics, settings)
-        { }
+        protected SizedPluginWithMapIcons(GameController gameController, Graphics graphics, TSettings settings) : base(gameController, graphics, settings)
+        {
+        }
 
         public Size2F Size { get; protected set; }
         public Func<Vector2> StartDrawPointFunc { get; set; }

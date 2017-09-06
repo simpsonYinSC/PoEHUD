@@ -1,6 +1,7 @@
 ﻿using System;
+// ReSharper disable InconsistentNaming
 
-namespace PoeHUD.Framework
+namespace PoEHUD.Framework
 {
     public delegate IntPtr CCHookProc(IntPtr hWnd, UInt16 msg, Int32 wParam, Int32 lParam);
 
@@ -15,5 +16,5 @@ namespace PoeHUD.Framework
         public IntPtr lCustData;
         public CCHookProc lpfnHook;
         public IntPtr lpTemplateName;
-    };
+    }
 }

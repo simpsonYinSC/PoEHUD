@@ -1,4 +1,4 @@
-namespace PoeHUD.Models.Enums
+namespace PoEHUD.Models.Enums
 {
     public enum InventoryIndex
     {
@@ -17,7 +17,7 @@ namespace PoeHUD.Models.Enums
         Boots,
         PlayerInventory,
         Flask
-        //Stash1 = 24,
-        //Stash2
+        //// Stash1 = 24,
+        //// Stash2
     }
 }

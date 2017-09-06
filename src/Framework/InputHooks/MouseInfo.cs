@@ -1,13 +1,12 @@
 ﻿using System.Windows.Forms;
-
 using PointDX = SharpDX.Point;
-using PointGdi = System.Drawing.Point;
+using PointGDI = System.Drawing.Point;
 
-namespace PoeHUD.Framework.InputHooks
+namespace PoEHUD.Framework.InputHooks
 {
     public sealed class MouseInfo
     {
-        public MouseInfo(MouseButtons buttons, PointGdi position, int wheelDelta)
+        public MouseInfo(MouseButtons buttons, PointGDI position, int wheelDelta)
         {
             Buttons = buttons;
             Position = new PointDX(position.X, position.Y);

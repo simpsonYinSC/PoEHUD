@@ -1,4 +1,6 @@
-﻿namespace PoeHUD.Poe.Components
+﻿namespace PoEHUD.PoE.Components
 {
-    public class Flask : Component { }
+    public class Flask : Component
+    {
+    }
 }

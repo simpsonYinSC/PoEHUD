@@ -1,12 +1,12 @@
-﻿using PoeHUD.Framework.Helpers;
-using PoeHUD.Framework.InputHooks.Structures;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using PoEHUD.Framework.Helpers;
+using PoEHUD.Framework.InputHooks.Structures;
 
-namespace PoeHUD.Framework.InputHooks
+namespace PoEHUD.Framework.InputHooks
 {
     public static class MouseHook
     {
@@ -20,104 +20,159 @@ namespace PoeHUD.Framework.InputHooks
         private static HookProc hookProc;
         private static int handle;
 
+        #region Mouse Events
+
+        public static event Action<MouseInfo> OnMouseMove
+        {
+            add
+            {
+                Subscribe();
+                MouseMove += value;
+            }
+            remove
+            {
+                MouseMove -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        public static event Action<MouseInfo> OnMouseDown
+        {
+            add
+            {
+                Subscribe();
+                MouseDown += value;
+            }
+            remove
+            {
+                MouseDown -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        public static event Action<MouseInfo> OnMouseUp
+        {
+            add
+            {
+                Subscribe();
+                MouseUp += value;
+            }
+            remove
+            {
+                MouseUp -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        public static event Action<MouseInfo> OnMouseWheel
+        {
+            add
+            {
+                Subscribe();
+                MouseWheel += value;
+            }
+            remove
+            {
+                MouseWheel -= value;
+                TryUnsubscribe();
+            }
+        }
+
+        private static event Action<MouseInfo> MouseMove;
+        private static event Action<MouseInfo> MouseDown;
+        private static event Action<MouseInfo> MouseUp;
+        private static event Action<MouseInfo> MouseWheel;
+
+        #endregion
+
         private static int MouseHookProc(int nCode, int wParam, IntPtr lParam)
         {
-            if (nCode >= 0)
+            if (nCode < 0)
             {
-                var mouseHookStruct = (MouseLLHookStruct)Marshal.PtrToStructure(lParam, typeof(MouseLLHookStruct));
-                Point position = mouseHookStruct.Point;
-
-                MouseInfo mouseInfo = null;
-                switch (wParam)
-                {
-                    case WM_LBUTTONDOWN:
-                        mouseInfo = new MouseInfo(MouseButtons.Left, position, 0);
-                        mouseDown.SafeInvoke(mouseInfo);
-                        break;
-
-                    case WM_LBUTTONUP:
-                        mouseInfo = new MouseInfo(MouseButtons.Left, position, 0);
-                        mouseUp.SafeInvoke(mouseInfo);
-                        break;
-
-                    case WM_RBUTTONDOWN:
-                        mouseInfo = new MouseInfo(MouseButtons.Right, position, 0);
-                        mouseDown.SafeInvoke(mouseInfo);
-                        break;
-
-                    case WM_RBUTTONUP:
-                        mouseInfo = new MouseInfo(MouseButtons.Right, position, 0);
-                        mouseUp.SafeInvoke(mouseInfo);
-                        break;
-
-                    case WM_MOUSEWHEEL:
-                        int delta = (mouseHookStruct.MouseData >> 16) & 0xffff;
-                        mouseInfo = new MouseInfo(MouseButtons.None, position, delta);
-                        mouseWheel.SafeInvoke(mouseInfo);
-                        break;
-
-                    case WM_MOUSEMOVE:
-                        mouseInfo = new MouseInfo(MouseButtons.None, position, 0);
-                        mouseMove.SafeInvoke(mouseInfo);
-                        break;
-                }
-
-                if (mouseInfo != null && mouseInfo.Handled)
-                {
-                    return -1;
-                }
+                return WindowsAPI.CallNextHookEx(handle, nCode, wParam, lParam);
             }
 
-            return WinApi.CallNextHookEx(handle, nCode, wParam, lParam);
+            var mouseHookStruct = (MouseLowLevelHookStruct)Marshal.PtrToStructure(lParam, typeof(MouseLowLevelHookStruct));
+            Point position = mouseHookStruct.Point;
+
+            MouseInfo mouseInfo = null;
+            switch (wParam)
+            {
+                case WM_LBUTTONDOWN:
+                    mouseInfo = new MouseInfo(MouseButtons.Left, position, 0);
+                    MouseDown.SafeInvoke(mouseInfo);
+                    break;
+
+                case WM_LBUTTONUP:
+                    mouseInfo = new MouseInfo(MouseButtons.Left, position, 0);
+                    MouseUp.SafeInvoke(mouseInfo);
+                    break;
+
+                case WM_RBUTTONDOWN:
+                    mouseInfo = new MouseInfo(MouseButtons.Right, position, 0);
+                    MouseDown.SafeInvoke(mouseInfo);
+                    break;
+
+                case WM_RBUTTONUP:
+                    mouseInfo = new MouseInfo(MouseButtons.Right, position, 0);
+                    MouseUp.SafeInvoke(mouseInfo);
+                    break;
+
+                case WM_MOUSEWHEEL:
+                    int delta = (mouseHookStruct.MouseData >> 16) & 0xffff;
+                    mouseInfo = new MouseInfo(MouseButtons.None, position, delta);
+                    MouseWheel.SafeInvoke(mouseInfo);
+                    break;
+
+                case WM_MOUSEMOVE:
+                    mouseInfo = new MouseInfo(MouseButtons.None, position, 0);
+                    MouseMove.SafeInvoke(mouseInfo);
+                    break;
+            }
+
+            if (mouseInfo != null && mouseInfo.Handled)
+            {
+                return -1;
+            }
+
+            return WindowsAPI.CallNextHookEx(handle, nCode, wParam, lParam);
         }
 
         private static void Subscribe()
         {
-            if (handle == 0)
+            if (handle != 0)
             {
-                hookProc = MouseHookProc;
-                handle = WinApi.SetWindowsHookEx(WH_MOUSE_LL, hookProc, IntPtr.Zero, 0);
-                if (handle == 0)
-                {
-                    int errorCode = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(errorCode);
-                }
+                return;
             }
+
+            hookProc = MouseHookProc;
+            handle = WindowsAPI.SetWindowsHookEx(WH_MOUSE_LL, hookProc, IntPtr.Zero, 0);
+            if (handle != 0)
+            {
+                return;
+            }
+
+            int errorCode = Marshal.GetLastWin32Error();
+            throw new Win32Exception(errorCode);
         }
 
         private static void TryUnsubscribe()
         {
-            if (handle != 0 && mouseDown == null && mouseUp == null && mouseMove == null && mouseWheel == null)
+            if (handle == 0 || MouseDown != null || MouseUp != null || MouseMove != null || MouseWheel != null)
             {
-                int result = WinApi.UnhookWindowsHookEx(handle);
-                handle = 0;
-                hookProc = null;
-                if (result == 0)
-                {
-                    int errorCode = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(errorCode);
-                }
+                return;
             }
+
+            int result = WindowsAPI.UnhookWindowsHookEx(handle);
+            handle = 0;
+            hookProc = null;
+            if (result != 0)
+            {
+                return;
+            }
+
+            int errorCode = Marshal.GetLastWin32Error();
+            throw new Win32Exception(errorCode);
         }
-
-        #region Events
-
-        private static event Action<MouseInfo> mouseMove;
-
-        public static event Action<MouseInfo> MouseMove { add { Subscribe(); mouseMove += value; } remove { mouseMove -= value; TryUnsubscribe(); } }
-
-        private static event Action<MouseInfo> mouseDown;
-
-        public static event Action<MouseInfo> MouseDown { add { Subscribe(); mouseDown += value; } remove { mouseDown -= value; TryUnsubscribe(); } }
-
-        private static event Action<MouseInfo> mouseUp;
-
-        public static event Action<MouseInfo> MouseUp { add { Subscribe(); mouseUp += value; } remove { mouseUp -= value; TryUnsubscribe(); } }
-
-        private static event Action<MouseInfo> mouseWheel;
-
-        public static event Action<MouseInfo> MouseWheel { add { Subscribe(); mouseWheel += value; } remove { mouseWheel -= value; TryUnsubscribe(); } }
-
-        #endregion Events
     }
 }

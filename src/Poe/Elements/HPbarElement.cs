@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace PoeHUD.Poe.Elements
+namespace PoEHUD.PoE.Elements
 {
-    public class HPbarElement : Element
+    public class HPBarElement : Element
     {
         public Entity MonsterEntity => ReadObject<Entity>(Address + 0x96C);
-        public new List<HPbarElement> Children => GetChildren<HPbarElement>();
+        public new List<HPBarElement> Children => GetChildren<HPBarElement>();
     }
 }
