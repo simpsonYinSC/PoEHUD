@@ -123,7 +123,7 @@ namespace PoEHUD.HUD.Loot
                 }
             }
 
-            Size = new Size2F(0, position.Y); // BUG absent width
+            Size = new Size2F(0, position.Y); // BUG: Absent width
 
             if (shouldUpdate)
             {

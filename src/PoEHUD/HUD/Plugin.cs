@@ -37,7 +37,7 @@ namespace PoEHUD.HUD
         protected static RectangleF GetDirectionsUV(double phi, double distance)
         {
             // could not find a better place yet
-            phi += Math.PI * 0.25; // fix rotation due to projection
+            phi += Math.PI * 0.25; // FIX: rotation due to projection
             if (phi > 2 * Math.PI)
             {
                 phi -= 2 * Math.PI;

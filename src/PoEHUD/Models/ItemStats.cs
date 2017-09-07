@@ -70,7 +70,7 @@ namespace PoEHUD.Models
 
         private void ParseSockets()
         {
-            // TODO ParseSockets do nothing
+            // TODO: ParseSockets do nothing
         }
     }
 }

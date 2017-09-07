@@ -27,6 +27,7 @@ bld/
 _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
+*.csproj.DotSettings
 
 # NuGet Packages
 *.nupkg
