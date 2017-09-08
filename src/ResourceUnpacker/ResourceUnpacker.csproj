@@ -170,6 +170,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del "$(TargetDir)ResourceUnpacker*.config"</PostBuildEvent>
+    <PostBuildEvent>del "$(TargetDir)$(ProjectName)*.config"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Antlr4.Runtime;
-using PoeFilterParser;
-using PoeFilterParser.Model;
+using PoEFilterParser;
+using PoEFilterParser.Model;
 using PoEHUD.Controllers;
 using PoEHUD.Framework;
 using PoEHUD.Framework.Helpers;
@@ -283,9 +283,9 @@ namespace PoEHUD.HUD.Loot
                     using (var fileStream = new StreamReader(path))
                     {
                         var input = new AntlrInputStream(fileStream.ReadToEnd());
-                        var lexer = new PoeFilterLexer(input);
+                        var lexer = new PoEFilterLexer(input);
                         var tokens = new CommonTokenStream(lexer);
-                        var parser = new PoeFilterParser.Model.PoeFilterParser(tokens);
+                        var parser = new PoEFilterParser.Model.PoEFilterParser(tokens);
                         parser.RemoveErrorListeners();
                         parser.AddErrorListener(new ErrorListener());
                         var tree = parser.main();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
-using PoeFilterParser.Model;
+using PoEFilterParser.Model;
 using PoEHUD.Controllers;
 using PoEHUD.Models.Enums;
 using PoEHUD.Models.Interfaces;
@@ -11,7 +11,7 @@ using SharpDX;
 
 namespace PoEHUD.HUD.Loot
 {
-    public class PoEFilterVisitor : PoeFilterBaseVisitor<AlertDrawStyle>
+    public class PoEFilterVisitor : PoEFilterBaseVisitor<AlertDrawStyle>
     {
         private readonly GameController gameController;
         private readonly IParseTree tree;
@@ -31,7 +31,7 @@ namespace PoEHUD.HUD.Loot
             return base.Visit(tree);
         }
 
-        public override AlertDrawStyle VisitMain(PoeFilterParser.Model.PoeFilterParser.MainContext context)
+        public override AlertDrawStyle VisitMain(PoEFilterParser.Model.PoEFilterParser.MainContext context)
         {
             if (entity == null || gameController?.Files?.BaseItemTypes == null)
             {
@@ -322,7 +322,7 @@ namespace PoEHUD.HUD.Loot
             return socketGroup.Select(group => string.Concat(group.OrderBy(y => y))).Any(sortedGroup => sortedGroup.Contains(str));
         }
 
-        private static Color ToColor(PoeFilterParser.Model.PoeFilterParser.ColorContext colorContext)
+        private static Color ToColor(PoEFilterParser.Model.PoEFilterParser.ColorContext colorContext)
         {
             var alphaContext = colorContext.alpha();
             int alpha = alphaContext.DIGITS() != null ? Convert.ToByte(alphaContext.GetText()) : 255;
@@ -332,7 +332,7 @@ namespace PoEHUD.HUD.Loot
             return new Color(red, green, blue, alpha);
         }
 
-        private static bool CalculateDigitsCondition(PoeFilterParser.Model.PoeFilterParser.CompareOpNullableContext compareOpNullable, PoeFilterParser.Model.PoeFilterParser.DigitsParamsContext digitsParams, int value)
+        private static bool CalculateDigitsCondition(PoEFilterParser.Model.PoEFilterParser.CompareOpNullableContext compareOpNullable, PoEFilterParser.Model.PoEFilterParser.DigitsParamsContext digitsParams, int value)
         {
             Func<int, int, bool> compareFunc = OpConvertor(compareOpNullable);
             return digitsParams.DIGITS().Any(y =>
@@ -342,7 +342,7 @@ namespace PoEHUD.HUD.Loot
             });
         }
 
-        private static Func<int, int, bool> OpConvertor(PoeFilterParser.Model.PoeFilterParser.CompareOpNullableContext terminalnode)
+        private static Func<int, int, bool> OpConvertor(PoEFilterParser.Model.PoEFilterParser.CompareOpNullableContext terminalnode)
         {
             string text = terminalnode.COMPAREOP()?.GetText() ?? "=";
             switch (text)
