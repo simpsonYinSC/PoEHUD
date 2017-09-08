@@ -82,6 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>PoEHUD.Program</StartupObject>
@@ -89,6 +90,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DefineConstants>DEBUG</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -104,22 +106,27 @@
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\Release\</OutputPath>
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>..\..\Release\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <WarningLevel>0</WarningLevel>
-    <DebugType>full</DebugType>
+    <DebugType>none</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
-    <DocumentationFile>
-    </DocumentationFile>
+    <AllowedReferenceRelatedFileExtensions>
+      <!-- Prevent default XML and PDB files copied to output in RELEASE. 
+           Only *.allowedextension files will be included, which doesn't exist in my case.
+       -->
+      -
+    </AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=09abb75b9ed49849">
       <HintPath>..\packages\Antlr4.Runtime.4.5.3\lib\net45\Antlr4.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -386,5 +393,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>del "$(TargetDir)PoEHUD*.config"</PostBuildEvent>
   </PropertyGroup>
 </Project>
