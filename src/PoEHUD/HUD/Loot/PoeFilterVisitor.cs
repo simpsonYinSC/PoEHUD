@@ -239,7 +239,14 @@ namespace PoEHUD.HUD.Loot
                                                                             var poeAlertSoundContext = statement.poeAlertSound();
                                                                             if (poeAlertSoundContext != null)
                                                                             {
-                                                                                sound = Convert.ToInt32(poeAlertSoundContext.id().GetText());
+                                                                                try
+                                                                                {
+                                                                                    sound = Convert.ToInt32(poeAlertSoundContext.soundId().GetText());
+                                                                                }
+                                                                                catch (FormatException e)
+                                                                                {
+                                                                                    sound = 1;
+                                                                                }
                                                                             }
                                                                             else
                                                                             {
