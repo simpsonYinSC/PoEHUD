@@ -49,7 +49,7 @@ namespace PoEHUD.HUD.Icons
                         + MapIcon.DeltaInWorldToMinimapDelta(icon.WorldPosition - playerPos, diag, scale, (iconZ - posZ) / 20);
 
                     HUDTexture texture = icon.TextureIcon;
-                    int size = icon.Size;
+                    float size = icon.Size;
                     var rect = new RectangleF(point.X - size / 2f, point.Y - size / 2f, size, size);
                     mapRect.Contains(ref rect, out bool isContain);
                     if (isContain)

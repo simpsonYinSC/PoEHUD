@@ -9,7 +9,7 @@ namespace PoEHUD.HUD
     {
         private readonly Func<bool> show;
 
-        public MapIcon(EntityWrapper entityWrapper, HUDTexture hudTexture, Func<bool> show, int iconSize = 10)
+        public MapIcon(EntityWrapper entityWrapper, HUDTexture hudTexture, Func<bool> show, float iconSize = 10)
         {
             EntityWrapper = entityWrapper;
             TextureIcon = hudTexture;
@@ -17,10 +17,10 @@ namespace PoEHUD.HUD
             Size = iconSize;
         }
 
-        public int? SizeOfLargeIcon { get; set; }
+        public float? SizeOfLargeIcon { get; set; }
         public EntityWrapper EntityWrapper { get; }
         public HUDTexture TextureIcon { get; private set; }
-        public int Size { get; private set; }
+        public float Size { get; private set; }
         public Vector2 WorldPosition => EntityWrapper.GetComponent<Positioned>().GridPosition;
 
         public static Vector2 DeltaInWorldToMinimapDelta(Vector2 delta, double diag, float scale, float deltaZ = 0)

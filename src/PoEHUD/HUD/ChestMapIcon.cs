@@ -6,7 +6,7 @@ namespace PoEHUD.HUD
 {
     public class ChestMapIcon : MapIcon
     {
-        public ChestMapIcon(EntityWrapper entityWrapper, HUDTexture hudTexture, Func<bool> show, int iconSize) : base(entityWrapper, hudTexture, show, iconSize)
+        public ChestMapIcon(EntityWrapper entityWrapper, HUDTexture hudTexture, Func<bool> show, float iconSize) : base(entityWrapper, hudTexture, show, iconSize)
         {
         }
 
