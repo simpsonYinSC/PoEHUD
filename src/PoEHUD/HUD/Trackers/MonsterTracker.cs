@@ -15,6 +15,14 @@ namespace PoEHUD.HUD.Trackers
 {
     public class MonsterTracker : PluginWithMapIcons<MonsterTrackerSettings>
     {
+        private static readonly List<string> EntitiesToIgnore = new List<string>
+        {
+            "GoddessOfJustice",
+            "MonsterFireTrap2",
+            "MonsterBlastRainTrap",
+            "Metadata/Monsters/Frog/FrogGod/SilverOrb",
+            "Metadata/Monsters/Frog/FrogGod/SilverPool"
+        };
         private readonly HashSet<long> alreadyAlertedOf;
         private readonly Dictionary<EntityWrapper, MonsterConfigLine> alertTexts;
         private readonly Dictionary<MonsterRarity, Func<EntityWrapper, Func<string, string>, CreatureMapIcon>> iconCreators;
@@ -193,6 +201,15 @@ namespace PoEHUD.HUD.Trackers
 
         private MapIcon GetMapIconForMonster(EntityWrapper entity, MonsterConfigLine monsterConfigLine)
         {
+            // If ignored entity found, skip
+            foreach (string entityToIgnore in EntitiesToIgnore)
+            {
+                if (entity.Path.Contains(entityToIgnore))
+                {
+                    return null;
+                }
+            }
+
             if (!entity.IsHostile)
             {
                 return new CreatureMapIcon(entity, "ms-cyan.png", () => Settings.Minions, Settings.MinionsIcon);

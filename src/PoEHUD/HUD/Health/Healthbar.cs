@@ -11,6 +11,14 @@ namespace PoEHUD.HUD.Health
         private const int DPSCheckTime = 1000;
         private const int DPSFastCheckTime = 200;
         private const int DPSPopTime = 2000;
+        private static readonly List<string> EntitiesToIgnore = new List<string>
+        {
+            "GoddessOfJustice",
+            "MonsterFireTrap2",
+            "MonsterBlastRainTrap",
+            "Metadata/Monsters/Frog/FrogGod/SilverOrb",
+            "Metadata/Monsters/Frog/FrogGod/SilverPool"
+        };
         private readonly Stopwatch pdsStopwatch = Stopwatch.StartNew();
         private readonly bool isHostile;
         private int lastHP;
@@ -18,9 +26,13 @@ namespace PoEHUD.HUD.Health
         public HealthBar(EntityWrapper entity, HealthBarSettings settings)
         {
             Entity = entity;
-            if (entity.Path.Contains("GoddessOfJustice"))
+            // If ignored entity found, skip
+            foreach (string entityToIgnore in EntitiesToIgnore)
             {
-                return;
+                if (entity.Path.Contains(entityToIgnore))
+                {
+                    return;
+                }
             }
 
             if (entity.HasComponent<Player>())
