@@ -88,7 +88,7 @@ namespace PoEHUD.PoE.Elements
                 {
                     case ToolTipType.ItemOnGround:
                         ItemsOnGroundLabelElement le = Game.IngameState.IngameUI.ReadObjectAt<ItemsOnGroundLabelElement>(0xD00);
-                        Entity e = le?.ReadObjectAt<Entity>(OffsetBuffers + 0x334);
+                        Entity e = le?.ItemOnHover;
                         return e?.GetComponent<WorldItem>().ItemEntity;
                     case ToolTipType.InventoryItem:
                         return ReadObject<Entity>(Address + 0xB58);

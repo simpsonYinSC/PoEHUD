@@ -11,7 +11,7 @@ namespace PoEHUD.PoE.RemoteMemoryObjects
         public ServerData ServerData => ReadObjectAt<ServerData>(0x178 + Offset.IgsOffset);
         public IngameUIElements IngameUI => ReadObjectAt<IngameUIElements>(0x5D0 + Offset.IgsOffset);
         public Element UIRoot => ReadObjectAt<Element>(0xC80 + Offset.IgsOffset);
-        public Element UIHover => ReadObjectAt<Element>(0xCB8 + Offset.IgsOffset);
+        public Element UIHover => ReadObjectAt<Element>(0xCA8 + Offset.IgsOffset);
         public float CurrentUIElementPositionX => Memory.ReadFloat(Address + 0xCB0 + Offset.IgsOffset);
         public float CurrentUIElementPositionY => Memory.ReadFloat(Address + 0xCB4 + Offset.IgsOffset);
         public long EntityLabelMap => Memory.ReadLong(Address + 0x98, 0xA70);

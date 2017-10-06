@@ -12,8 +12,10 @@ namespace PoEHUD.PoE.Elements
             labelInfo = new Lazy<long>(GetLabelInfo);
         }
 
-        public Entity ItemOnGround => ReadObject<Entity>(Address + 0x18);
-        public Element Label => ReadObject<Element>(Address + 0x10);
+        public Element Label => ReadObjectAt<Element>(0x10); // LabelsOnGround
+        public Entity ItemOnGround => ReadObjectAt<Entity>(0x18); // ItemsOnGround
+        public Element LabelOnHover => ReadObjectAt<Element>(OffsetBuffers + 0x32C);
+        public Entity ItemOnHover => ReadObjectAt<Entity>(OffsetBuffers + 0x334);
         public bool CanPickUp => labelInfo.Value == 0;
 
         public TimeSpan TimeLeft
@@ -25,12 +27,12 @@ namespace PoEHUD.PoE.Elements
                     return new TimeSpan();
                 }
 
-                int futureTime = Memory.ReadInt(labelInfo.Value + 0x20);
+                int futureTime = Memory.ReadInt(labelInfo.Value + 0x38);
                 return TimeSpan.FromMilliseconds(futureTime - Environment.TickCount);
             }
         }
 
-        public TimeSpan MaximumTimeForPickUp => !CanPickUp ? TimeSpan.FromMilliseconds(Memory.ReadInt(labelInfo.Value + 0x1C)) : new TimeSpan();
+        public TimeSpan MaximumTimeForPickUp => !CanPickUp ? TimeSpan.FromMilliseconds(Memory.ReadInt(labelInfo.Value + 0x34)) : new TimeSpan();
         public new bool IsVisible => Label.IsVisible;
 
         public new IEnumerable<ItemsOnGroundLabelElement> Children
@@ -48,7 +50,7 @@ namespace PoEHUD.PoE.Elements
 
         private long GetLabelInfo()
         {
-            return Label.Address != 0 ? Memory.ReadLong(Label.Address + OffsetBuffers + 0x45C) : 0; // potential candidates: 0x414, 0x45C, 0x494, 0x4A4, 0x4B4
+            return Label.Address != 0 ? Memory.ReadLong(Label.Address + OffsetBuffers + 0x66C) : 0;
         }
     }
 }
