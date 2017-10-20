@@ -109,16 +109,59 @@ namespace PoEHUD.HUD.Loot
                     continue;
                 }
 
-                ItemsOnGroundLabelElement entityLabel;
-                if (!currentLabels.TryGetValue(kv.Key.Address, out entityLabel))
+                if (!currentLabels.TryGetValue(kv.Key.Address, out var entityLabel))
                 {
                     shouldUpdate = true;
                 }
                 else
                 {
-                    if (Settings.ShowText && (!Settings.HideOthers || entityLabel.CanPickUp || entityLabel.MaximumTimeForPickUp.TotalSeconds == 0))
+                    if (!this.Settings.ShowText)
                     {
-                        position = DrawText(playerPos, position, bottomMargin, kv, text);
+                        continue;
+                    }
+
+                    if (this.Settings.HideOthers)
+                    {
+                        if (entityLabel.CanPickUp || entityLabel.MaximumTimeForPickUp.TotalSeconds == 0)
+                        {
+                            position = this.DrawText(playerPos, position, bottomMargin, kv, text);
+                        }
+                    }
+                    else
+                    {
+                        if (entityLabel.CanPickUp || entityLabel.MaximumTimeForPickUp.TotalSeconds == 0)
+                        {
+                            position = this.DrawText(playerPos, position, bottomMargin, kv, text);
+                        }
+                        else
+                        {
+                            // get current values
+                            Color textColor = kv.Value.TextColor;
+                            Color borderColor = kv.Value.BorderColor;
+                            Color backgroundColor = kv.Value.BackgroundColor;
+
+                            if (this.Settings.DimOtherByPercentToggle)
+                            {
+                                // edit values to new ones
+                                double reduceByPercent = (double)Settings.DimOtherByPercent / 100;
+
+                                textColor = ReduceNumbers(textColor, reduceByPercent);
+                                borderColor = ReduceNumbers(borderColor, reduceByPercent);
+                                backgroundColor = ReduceNumbers(backgroundColor, reduceByPercent);
+
+                                // backgrounds with low alpha start to look a little strange when dark so im adding an alpha threshold
+                                if (backgroundColor.A < 210)
+                                {
+                                    backgroundColor.A = 210;
+                                }
+                            }
+                                
+                            // Complete new KeyValuePair with new stuff
+                            AlertDrawStyle modifiedDrawStyle = new AlertDrawStyle(text, textColor, kv.Value.BorderWidth, borderColor, backgroundColor, kv.Value.IconIndex);
+                            var newKeyValue = new KeyValuePair<EntityWrapper, AlertDrawStyle>(kv.Key, modifiedDrawStyle);
+                                
+                            position = this.DrawText(playerPos, position, bottomMargin, newKeyValue, text);
+                        }
                     }
                 }
             }
@@ -245,6 +288,18 @@ namespace PoEHUD.HUD.Loot
             string[] lines = File.ReadAllLines("config/currency.txt");
             lines.Where(x => !string.IsNullOrWhiteSpace(x) && !x.StartsWith("#")).ForEach(x => hashSet.Add(x.Trim().ToLowerInvariant()));
             return hashSet;
+        }
+
+        private Color ReduceNumbers(Color oldColor, double percent)
+        {
+            Color newColor = oldColor;
+
+            newColor.R = (byte)((double)oldColor.R - ((double)oldColor.R * percent));
+            newColor.G = (byte)((double)oldColor.G - ((double)oldColor.G * percent));
+            newColor.B = (byte)((double)oldColor.B - ((double)oldColor.B * percent));
+            newColor.A = (byte)((double)oldColor.A - (((double)oldColor.A / 10) * percent));
+
+            return newColor;
         }
 
         private Vector2 DrawText(Vector2 playerPos, Vector2 position, int bottomMargin, KeyValuePair<EntityWrapper, AlertDrawStyle> kv, string text)
